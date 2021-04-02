@@ -1,0 +1,74 @@
+.col2{
+    display: inline-block;
+    width: 19%;
+}
+
+.col8{
+    display: inline-block;
+    width: 80%;
+}
+
+
+html, body {
+    margin: 0; 
+    height: 100%; 
+    overflow: hidden
+}
+
+.loginContainer {
+    display: block;
+    width: 100%;
+    margin-top: 16%;
+    text-align: center;
+    z-index: 1;
+}
+
+.loginContainer #title {
+    font-size: 48px;
+    text-align: center;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.loginContainer label {
+    display: block;
+    font-size: 24px;
+    text-align: center;
+    font-family: 'Open Sans', sans-serif;
+    margin-top: 40px;
+}
+
+.loginContainer input {
+    font-size: 18px;
+    text-align: center;
+    font-family: 'Open Sans', sans-serif;
+    border-radius: 10px;
+    color: white;
+    background-color: rgb(9, 9, 9);
+    border: none;
+    margin-top: -10px;
+}
+
+.loginContainer button {
+    font-size: 16px;
+    background-color: black;
+    color: white;
+    padding: 14px 20px;
+    margin: 60px 20px;
+    border: none;
+    cursor: pointer;
+    width: 120px;
+    height: 80px;
+    border-radius: 20px;
+}
+
+.loginContainer button:hover {
+    opacity: 0.8;
+}
+
+.loginContainer .errorText{
+    color: red;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 12px;
+    margin-bottom: -16px;
+    display: none;
+}

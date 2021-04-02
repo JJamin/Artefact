@@ -148,7 +148,7 @@ function removeFromLobby(playerID, lobbyID){
 
     if (lobbies[lobbyID]['playerCount'] == 1){
         lobbyCodeIndex = lobbyCodes.indexOf(lobbies[lobbyID]['code']);
-        if (lobbyCodeIndex > -1) {lobbyCodes.splice(index, 1);}
+        if (lobbyCodeIndex > -1) {lobbyCodes.splice(lobbyCodeIndex, 1);}
         lobbies[lobbyID]['lobby'].killSignal('SIGTERM');
         delete lobbies[lobbyID];
         return

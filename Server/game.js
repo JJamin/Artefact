@@ -102,7 +102,7 @@ function tickPlayer(player){
 }
 
 function movePlayer(player){
-    player.velocity = newPlayerVelocity(keypress,player.velocity)
+    player.velocity = newPlayerVelocity(player.keypress,player.velocity)
     player.x += player.velocity * player.movementSpeed
     player.y += player.velocity * player.movementSpeed
     return player

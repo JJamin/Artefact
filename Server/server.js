@@ -4,7 +4,7 @@ const express = require('express');
 const socketio = require('socket.io');
 
 const app = express();
-const clientPath = 'C:\\Users\\Jody\\Desktop\\Files\\Coding\\Collab\\Client'; //`${__dirname}/../Client`;
+const clientPath = 'C:\\Users\\Jody\\Desktop\\Files\\Coding\\Artefact\\Client'; //`${__dirname}/../Client`;
 console.log(`Serving static from ${clientPath}`);
 
 app.use(express.static(clientPath));
@@ -103,8 +103,8 @@ function startLobby(){
     lobbies[lobby.pid]['players'] = [];
     lobbies[lobby.pid]['lobby'] = lobby;
     lobbies[lobby.pid]['playerCount'] = 1;
-    lobbies[lobby]['code'] = util.makeLobbyCode(lobbyCodes);
-    lobbyCodes.push(lobbies[lobby]['code'])
+    lobbies[lobby.pid]['code'] = util.makeLobbyCode(lobbyCodes);
+    lobbyCodes.push(lobbies[lobby.pid]['code'])
 
     return lobby.pid
 }
@@ -120,6 +120,7 @@ function enterBattlefield(player, lobbyCode = "NULL"){
                     lobbies[lobby]['players'].push(player.id);
                     lobbies[lobby]['lobby'].send(sendInfo(player.id, 'addPlayer', [player.id, player.username]));
                 } catch (e) {
+                    console.log("Error 2");
                     console.log(e);
                 }
                 return [lobby, lobbies[lobby]['code']]
@@ -134,8 +135,9 @@ function enterBattlefield(player, lobbyCode = "NULL"){
     try {
         lobbies[lobbyPid]['lobby'].send(sendInfo(player.id, 'addPlayer', [player.id, player.username]));
         lobbies[lobbyPid]['players'].push(player.id);
-        return [lobby, lobbies[lobby]['code']]
+        return [lobbyPid, lobbies[lobbyPid]['code']]
     } catch (e) {
+        console.log("Error 1");
         console.log(e);
     }
 }
@@ -145,7 +147,7 @@ function removeFromLobby(playerID, lobbyID){
     if (!lobbies[lobbyID]){return}
 
     if (lobbies[lobbyID]['playerCount'] == 1){
-        lobbyCodeIndex = array.indexOf(lobbies[lobbyID]['code']);
+        lobbyCodeIndex = lobbyCodes.indexOf(lobbies[lobbyID]['code']);
         if (lobbyCodeIndex > -1) {lobbyCodes.splice(index, 1);}
         lobbies[lobbyID]['lobby'].killSignal('SIGTERM');
         delete lobbies[lobbyID];

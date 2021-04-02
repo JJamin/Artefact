@@ -4,7 +4,9 @@ const express = require('express');
 const socketio = require('socket.io');
 
 const app = express();
-const clientPath = 'C:\\Users\\Jody\\Desktop\\Files\\Coding\\Collab\\Client'; //`${__dirname}/../Client`;
+// const clientPath = 'C:\\Users\\Jody\\Desktop\\Files\\Coding\\Collab\\Client'; //`${__dirname}/../Client`;
+const clientPath `${__dirname}/../Client`;
+// const clientPath = '/Users/kai/Desktop/Artefact/Client'; //`${__dirname}/../Client`;
 console.log(`Serving static from ${clientPath}`);
 
 app.use(express.static(clientPath));

@@ -2,7 +2,7 @@
 var util = require('./lib/utilities');
 
 //Variables
-var players = {};
+var players = {}; //[PlayerID] -> Player
 var maxScreenWidth = 16;
 var maxScreenHeight = 16;
 var gamestate = "ingame"; //States: ingame, skillTree, settings

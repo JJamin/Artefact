@@ -73,6 +73,11 @@ function socketConnections(socket) {
         loop();
     });
 
+    socket.on('update-client', function (data) {
+        //data = {player: player, enemies: visableEnemies}
+        
+    });
+
     // -- Handle error --
     socket.on('connect_failed', function () {
         socket.close();

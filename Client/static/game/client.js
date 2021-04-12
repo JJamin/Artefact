@@ -37,15 +37,8 @@ var loopHandler;
 
 // -- Buttons --
 function publicClicked(){
-    if (checkUsername() != 1){return};
     startGame();
 }
-
-function privateClicked(){
-    socket.emit('test', "hello")
-    // console.log(Math.random().toString(36).substring(2, 6).toUpperCase())
-}
-
 
 // ---- Server ----
 function startGame(){
@@ -91,23 +84,5 @@ function socketConnections(socket) {
 // -- Loops --
 function loop() {
     loopHandler = window.requestAnimFrame(loop);
-}
-
-// -- Username Valid Functions --
-function checkUsername(){
-    var username = document.getElementById('username').value;
-    if (username.length > 16){
-        document.getElementById('errorCharacterLimit').style.display = 'block';
-        document.getElementById('errorEmptyUsername').style.display = 'none';
-    } else if (username.length == 0){
-        document.getElementById('errorCharacterLimit').style.display = 'none';
-        document.getElementById('errorEmptyUsername').style.display = 'block';
-    } else {
-        document.getElementById('errorCharacterLimit').style.display = 'none';
-        document.getElementById('errorEmptyUsername').style.display = 'none';
-        player.username = username;
-        return 1;
-    }
-    return -1;
 }
 

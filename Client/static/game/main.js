@@ -29,7 +29,7 @@ function init() {
     const near = 0.1;
     const far = 1024;
     let unit = 8;
-    camera = new THREE.OrthographicCamera( view.width / -24, view.width / 24, view.height / 24, view.height / -24, -128, 1024 );
+    camera = new THREE.OrthographicCamera( view.width / -24, view.width / 24, view.height / 24, view.height / -24, -128, 512 );
     // camera = new THREE.PerspectiveCamera(fov=10, window.innerWidth / window.innerHeight, near, far);
     camera.up.set( 0, 0, 1 )
     camera.position.z = 24;
@@ -172,13 +172,12 @@ function frame() {
     // Player controls
     if (controls.x != 0) G.nodes.player.position.x += Math.sign(controls.x) * 0.162;
     if (controls.z != 0) G.nodes.player.position.y += Math.sign(controls.z) * 0.162;
-
+    // Cursor direction
     let dir = -Math.atan(controls.mx/controls.my)
-    if (controls.my > 0) 
-        G.nodes.player.rotation.z = dir
-    else
-        G.nodes.player.rotation.z = dir + Math.PI
+    if (controls.my < 0 ) dir += Math.PI
 
+    // Point player with cursor directionw
+    G.nodes.player.rotation.z = dir
 
     // Camera positioning
     viewVector.set(0,1,0)

@@ -40,6 +40,11 @@ function publicClicked(){
     startGame();
 }
 
+// -- Loops --
+function loop() {
+    loopHandler = window.requestAnimFrame(loop);
+}
+
 // ---- Server ----
 function startGame(){
     console.log("GAME SHOULD HAVE STARTED")
@@ -77,10 +82,5 @@ function socketConnections(socket) {
     socket.on('disconnect', function () {
         socket.close();
     });
-}
-
-// ---- Game Logic ----
-function gameLoop(){
-    socket.emit('update-server', {'target' : player.target, 'keypress' : keypress});
 }
 

@@ -54,7 +54,7 @@ io.on('connection', (socket) => {
         player.username = username;
 
         //Add player to socket dictionary
-        console.log('User #' + player.username + ' entered the battlefield');
+        console.log('User ' + player.username + ' entered the battlefield');
         sockets[player.id] = socket;
 
         //Enter the player to a battlefield
@@ -79,7 +79,7 @@ io.on('connection', (socket) => {
 
     // --Disconnection--
     socket.on('disconnect', function () {
-        console.log('Player' + player.username + 'Disconnected');
+        console.log('Player ' + player.username + ' Disconnected');
         if (sockets[player.id]){
             delete sockets[player.id];
             removeFromLobby(player.id, player.lobbyID)
@@ -149,7 +149,7 @@ function removeFromLobby(playerID, lobbyID){
     if (lobbies[lobbyID]['playerCount'] == 1){
         lobbyCodeIndex = lobbyCodes.indexOf(lobbies[lobbyID]['code']);
         if (lobbyCodeIndex > -1) {lobbyCodes.splice(lobbyCodeIndex, 1);}
-        lobbies[lobbyID]['lobby'].killSignal('SIGTERM');
+        lobbies[lobbyID]['lobby'].kill('SIGTERM');
         delete lobbies[lobbyID];
         return
     }

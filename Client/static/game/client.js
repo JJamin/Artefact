@@ -80,9 +80,7 @@ function socketConnections(socket) {
 }
 
 // ---- Game Logic ----
-
-// -- Loops --
-function loop() {
-    loopHandler = window.requestAnimFrame(loop);
+function gameLoop(){
+    socket.emit('update-server', {'target' : player.target, 'keypress' : keypress});
 }
 

@@ -95,7 +95,9 @@ function startLobby(){
     lobby.on('message', (msg) => {
         if (msg['type'] == 'update-client') {
             //msg = {player : player, enemies: [players]}
-            sockets[msg['playerID']].emit('update-client', msg['message'])
+            if (msg['playerID'] in sockets){
+                sockets[msg['playerID']].emit('update-client', msg['message'])
+            }
         }
     });
 

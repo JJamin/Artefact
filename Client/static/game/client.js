@@ -1,4 +1,15 @@
 // Player
+var model = {
+    nodes: {
+        // node:{img,x,y}
+    },
+    player: {
+        state: {
+            
+        }
+    }
+}
+
 var player = {
     username: "NULL",
     lobbyCode: "NULL",
@@ -7,11 +18,7 @@ var player = {
         x: 0,
         y: 0
     }
-};
-
-// -- Variables --
-var socket;
-var loopHandler;
+}
 
 // -- Animation Frame --
 window.requestAnimFrame = (function() {
@@ -24,6 +31,10 @@ window.requestAnimFrame = (function() {
             };
 })();
 
+// -- Variables --
+var socket;
+var loopHandler;
+
 // -- Buttons --
 function publicClicked(){
     if (checkUsername() != 1){return};
@@ -35,20 +46,6 @@ function privateClicked(){
     // console.log(Math.random().toString(36).substring(2, 6).toUpperCase())
 }
 
-// -- Key Events --
-document.addEventListener('keydown', function (event) {
-    if (event.defaultPrevented || event.isComposing || event.keyCode === 229) {
-        return;
-    }
-    keypress[event.key] = "0";
-});
-
-document.addEventListener('keyup', function (event) {
-    if (event.defaultPrevented || event.isComposing || event.keyCode === 229) {
-        return;
-    }
-    delete keypress[event.key];
-});
 
 // ---- Server ----
 function startGame(){
@@ -94,11 +91,6 @@ function socketConnections(socket) {
 // -- Loops --
 function loop() {
     loopHandler = window.requestAnimFrame(loop);
-    gameLoop();
-}
-
-function gameLoop(){
-    socket.emit('update-server', {'target' : player.target, 'keypress' : keypress});
 }
 
 // -- Username Valid Functions --

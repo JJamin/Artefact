@@ -1,7 +1,7 @@
 const SCALE = 3
 const PREF = {
     scale: 3,
-    viewAngle: 45 
+    viewAngle: 40
 }
 var SOURCE = {
     img:{},
@@ -17,7 +17,7 @@ function load() {
         "hat",
         "rock"
     ]
-    let outstanding = imgs.length 
+    let outstanding = imgs.length
     let texLoader = THREE.TextureLoader()
 }
 function init() {
@@ -144,6 +144,8 @@ function init() {
     setCamera()
     run = true
     frame()
+
+    startGame()
 
 }
 var T = 0

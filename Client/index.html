@@ -1,26 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Party</title>
-    <link rel="stylesheet" href="styles/main.css">
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@700&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div id = 'loginPage'>
-        <div class = 'loginContainer'>
-            <div id = 'title'>
-                Unnamed Game
-            </div>
-            <label for="username">Username</label><br>
-            <input type="text" placeholder="Enter Username" id="username" required><br>
-            <div class = "errorText" id = "errorCharacterLimit">Please enter a username with 16 letters or less</div>
-            <div class = "errorText" id = "errorEmptyUsername">Please enter a username</div>
-            <button onclick="publicClicked()" id = "publicButton"> Public Game </button>
-            <button onclick="privateClicked()" id = "privateButton"> Private Game </button>
-        </div>
-    </div>
-
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="src/client.js"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
+    <link rel="apple-touch-icon" href="/icon.png">
+    <link rel="icon" type="image/png" href="/icon.png">
+    <link rel="manifest" href="/manifest.json">
+    <title>App</title>
+    <script src="/static/three/three.min.js"></script>
+    <script src="/static/game/main.js"></script>
+    <script>
+        // if('serviceWorker' in navigator) { navigator.serviceWorker.register('sw-cache.js') }
+        window.addEventListener('load',()=>{
+            init()
+        })
+    </script>
+</head>
+<body>
+<app page>
+    <canvas page id="view"></canvas>
+</app>
+</body>
+<style>
+    @font-face {
+        font-family: 'main';
+        src: url('/static/font/regular.woff2') format('woff2');
+        font-weight: normal;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: 'main';
+        src: url('/static/font/medium.woff2') format('woff2');
+        font-weight: 500;
+        font-style: normal;
+    }
+    ::-webkit-scrollbar {
+        display: none; 
+    }
+    ::selection {
+        background: none;
+    }
+    * {
+        -webkit-touch-callout: none;
+        -webkit-text-size-adjust: none;
+        -webkit-tap-highlight-color: #0000; 
+        -webkit-user-select: none;
+        -webkit-tap-highlight-color: #0000; 
+        padding: 0;
+        margin: 0;
+        font-size: 0;
+        font-family: 'main', Helvetica, sans-serif;
+        font-weight: normal;
+        outline: none;
+        appearance: none;
+        border: none;
+        pointer-events: none;
+	}
+    html { background: black; }
+    body { background: black; color: white; }
+    *[page] {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        width: 100%; height: 100%;
+    }
+    a {
+        text-decoration: none;
+        color: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+    }
+    t {
+        display: inline-block;
+        font-size: 16px;
+    }
+    z {
+        display: block;
+    }
+    x {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    #view {
+        pointer-events: all;
+        cursor: url(/static/img/crosshair.png) 16 16, auto;
+    }
+</style>
 </html>

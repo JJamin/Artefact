@@ -71,7 +71,7 @@ function socketConnections(socket) {
 
     socket.on('update-client', function (data) {
         //data = {player: player, enemies: [visableEnemies]}
-        console.log(data)
+        // console.log(data)
     });
 
     // -- Handle error --

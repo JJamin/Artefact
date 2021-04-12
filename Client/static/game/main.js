@@ -33,7 +33,7 @@ function init() {
 
     const near = 0.1;
     const far = 32;
-    let unit = 8
+    let unit = 8;
     camera = new THREE.OrthographicCamera( view.width / -24, view.width / 24, view.height / 24, view.height / -24, -128, 128 );
     // camera = new THREE.OrthographicCamera( view.width / -2, view.width / 2, view.height / 2, view.height / -2, -128, 128 );
     // camera = new THREE.PerspectiveCamera(fov=50, window.innerWidth / window.innerHeight, near, far);

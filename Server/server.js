@@ -97,7 +97,7 @@ function startLobby(){
             //msg = {player : player, enemies: [players]}
             if (msg['playerID'] in sockets){
                 sockets[msg['playerID']].emit('update-client', msg['message'])
-                console.log(msg['message'])
+                // console.log(msg['message'])
             }
         }
     });

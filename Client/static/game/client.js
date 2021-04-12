@@ -1,7 +1,7 @@
 // Player
 var model = {
     nodes: {
-        // node:{img,x,y}
+        // node:{type,x,y}
     },
     player: {
         state: {

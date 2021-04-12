@@ -12,14 +12,9 @@ var camera, renderer, controls
 var rtTexture, upscaleCamera, upscaleScene
 var G = {}
 const view = {}
-function load() {
-    let imgs = [
-        "hat",
-        "rock"
-    ]
-    let outstanding = imgs.length
-    let texLoader = THREE.TextureLoader()
-}
+const xAxis = new THREE.Vector3( 1, 0, 0 );
+const yAxis = new THREE.Vector3( 0, 1, 0 );
+const zAxis = new THREE.Vector3( 0, 0, 1 );
 function init() {
     window.addEventListener('keydown', keyDown)
     window.addEventListener('keyup', keyUp)
@@ -32,11 +27,11 @@ function init() {
     setScale()
 
     const near = 0.1;
-    const far = 32;
+    const far = 1024;
     let unit = 8;
-    camera = new THREE.OrthographicCamera( view.width / -24, view.width / 24, view.height / 24, view.height / -24, -128, 128 );
-    // camera = new THREE.OrthographicCamera( view.width / -2, view.width / 2, view.height / 2, view.height / -2, -128, 128 );
-    // camera = new THREE.PerspectiveCamera(fov=50, window.innerWidth / window.innerHeight, near, far);
+    camera = new THREE.OrthographicCamera( view.width / -24, view.width / 24, view.height / 24, view.height / -24, -128, 512 );
+    // camera = new THREE.PerspectiveCamera(fov=10, window.innerWidth / window.innerHeight, near, far);
+    camera.up.set( 0, 0, 1 )
     camera.position.z = 24;
     camera.position.y = -16; // Determines tilt angle
     camera.rotation.x = Math.PI * 0.12
@@ -84,7 +79,7 @@ function init() {
 				upscaleScene.add( quad );
 
     G.scene = new THREE.Scene();
-    G.scene.background = new THREE.Color( 0xE26E74 );
+    G.scene.background = new THREE.Color( 0xe26e6e );
 
     // Initialize objects in scene
     G.nodes = {}
@@ -95,12 +90,31 @@ function init() {
         let mat = new THREE.MeshBasicMaterial({color: 0x6A2F4C})
         // let mat = new THREE.MeshPhongMaterial({color: 0x6A2F4C})
         let body = new THREE.Mesh(new THREE.IcosahedronGeometry(0.33, 1), mat);
-        body.scale.y = 1.5
+        body.scale.z = 1.5
+        body.position.z = 0.8
         G.nodes.player.add( body )
 
         let head = new THREE.Mesh(new THREE.IcosahedronGeometry(0.2, 1), mat);
-        head.position.y = 0.62
+        head.position.z = 0.62 + body.position.z
         G.nodes.player.add( head )
+        
+        let geo = new THREE.ConeGeometry( 0.6, 1.2, 5, 3, true, -Math.PI*0.6, Math.PI*1.2)
+        mat = new THREE.MeshBasicMaterial({color: 0x8262e3})
+        let cape = new THREE.Mesh(geo, mat);
+        cape.rotation.x = 1.2
+        cape.position.z = 0.05 + body.position.z
+        cape.position.y = -0.2 + body.position.y
+        cape.material.side = THREE.DoubleSide
+        G.nodes.player.add( cape )
+
+        // let mat2 = new THREE.MeshBasicMaterial({color: 0x6A2F4C})
+        // let geo = new THREE.ConeGeometry(0.6, 0.7,
+        //                                  6, 1,
+        //                                  true, -Math.PI/4, Math.PI/2)
+        // let cape = new THREE.Mesh(geo, mat2);
+        // cape.position.z = 1.62 + body.position.z
+        // G.nodes.player.add( cape )
+        // console.log( geo ) 
 
         textureLoader.load('/static/img/hat.png',(tex)=>{
             console.log(tex.image.width)
@@ -110,7 +124,7 @@ function init() {
             // mat.size = 0.2
             // mat.sizeAttenuation = false
             const hat = new THREE.Sprite( mat );
-            hat.position.y = 1.2
+            hat.position.z = 0.95 + body.position.z
             hat.scale.x = 1/PREF.scale*2.0// 0.5 //tex.image.width //* PREF.scale
             hat.scale.y = 1/PREF.scale*2.0//0.5 //tex.image.width //* PREF.scale
             console.log(hat.scale.y) 
@@ -127,8 +141,8 @@ function init() {
             const rock = new THREE.Sprite( mat );
             rock.position.x = Math.random() * 64 - 32
             rock.position.y = Math.random() * 64 - 32
-            rock.scale.x = 0.5
-            rock.scale.y = 0.5
+            rock.scale.x = 1/PREF.scale*2.0// 0.5 //tex.image.width //* PREF.scale
+            rock.scale.y = 1/PREF.scale*2.0//0.5 //tex.image.width //* PREF.scale
             G.scene.add( rock )
         }
     }
@@ -148,27 +162,38 @@ function init() {
     startGame()
 
 }
+var viewVector = new THREE.Vector3( 0, 1, 0 );
+
 var T = 0
+// const RAD = Math.PI / 2;
 function frame() {
     T = performance.now()
 
-    camera.rotation.z = controls.mx * 0.16
-    // camera.rotation.y = controls.my * 0.32
-
     // Player controls
-    if (controls.x != 0) G.nodes.player.position.x += Math.sign(controls.x) * 0.2;
-    if (controls.z != 0) G.nodes.player.position.y += Math.sign(controls.z) * 0.2;
-    // Smooth camera follow player
-    camera.position.x += (G.nodes.player.position.x - camera.position.x) * 0.1
-    camera.position.y += (G.nodes.player.position.y - 6 - camera.position.y) * 0.1
+    if (controls.x != 0) G.nodes.player.position.x += Math.sign(controls.x) * 0.162;
+    if (controls.z != 0) G.nodes.player.position.y += Math.sign(controls.z) * 0.162;
+    // Cursor direction
+    let dir = -Math.atan(controls.mx/controls.my)
+    if (controls.my < 0 ) dir += Math.PI
+
+    // Point player with cursor directionw
+    G.nodes.player.rotation.z = dir
+
+    // Camera positioning
+    viewVector.set(0,1,0)
+    viewVector.applyAxisAngle( xAxis, controls.my*0.12 - 0.62 );
+    viewVector.applyAxisAngle( zAxis, controls.mx*0.24 );
+    let camPos = G.nodes.player.position.clone()
+    viewVector.multiplyScalar(128.0)
+    camPos.sub(viewVector)
+    camera.position.set( camPos.x, camPos.y, camPos.z)
+    camera.lookAt(G.nodes.player.position)
 
     // Draw scene
     renderScene()
 
-    // renderer.render(G.scene, camera)
-    // G.nodes.player.rotation.y = performance.now() * 0.002
-    // G.nodes.player.rotation.x = performance.now() * 0.001
     if (run) requestAnimationFrame(frame)
+
 }
 function renderScene() {
     // Render small scale scene
@@ -192,13 +217,13 @@ function setCamera() {
     camera.updateProjectionMatrix();
     renderer.setSize( view.viewWidth, view.viewHeight )
 }
-// function layout () {
-//     width = window.innerWidth
-//     height = window.innerHeight
-//     camera.aspect =  width / height
-//     camera.updateProjectionMatrix();
-//     renderer.setSize( width, height )
-// }
+function layout () {
+    width = window.innerWidth
+    height = window.innerHeight
+    camera.aspect =  width / height
+    camera.updateProjectionMatrix();
+    renderer.setSize( width, height )
+}
 function resize() {
     layout()
 }
@@ -240,8 +265,8 @@ function keyUp(e) {
     }
     return false
 }
-var controls = {z:0,x:0,y:0,mx:0,my:0}
+var controls = {z:0,x:0,y:0,mx:1,my:1}
 function mouseMove(e) { 
-    controls.mx = (e.clientX/window.innerWidth)*0.5-0.5
-    controls.my = (e.clientX/window.innerHeight)*0.5-0.5
+    controls.mx = ((e.clientX/window.innerWidth) * 1.0) - 0.5
+    controls.my = ((e.clientY/window.innerHeight) * -1.0) + 0.5
 }

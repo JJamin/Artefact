@@ -20,6 +20,17 @@ var player = {
     }
 }
 
+// -- Animation Frame --
+window.requestAnimFrame = (function() {
+    return  window.requestAnimationFrame       ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame    ||
+            window.msRequestAnimationFrame     ||
+            function( callback ) {
+                window.setTimeout(callback, 1000 / 60);
+            };
+})();
+
 // -- Variables --
 var socket;
 var loopHandler;
@@ -41,7 +52,8 @@ function startGame(){
     console.log("GAME SHOULD HAVE STARTED")
     socket = io.connect('http://localhost:8000');
     socketConnections(socket);
-    socket.emit('joinGame', "Username");
+    //socket.emit('joinGame', player.username);//TODO####
+    socket.emit('joinGame', "Test Guy");
 }
 
 function socketConnections(socket) {
@@ -60,9 +72,8 @@ function socketConnections(socket) {
     });
 
     socket.on('update-client', function (data) {
-        //data = {player: player, enemies: visableEnemies}
-        print(data)
-        
+        //data = {player: player, enemies: [visableEnemies]}
+        console.log(data)
     });
 
     // -- Handle error --

@@ -7,6 +7,12 @@ var maxScreenWidth = 16;
 var maxScreenHeight = 16;
 var gamestate = "ingame"; //States: ingame, skillTree, settings
 
+//Enum for types
+const type = {
+	player: 0,
+	enemy: 1,
+}
+
 //helper functions
 function sendInfo(p, t, m){
     return ({playerID : p, 
@@ -34,15 +40,14 @@ function createNewPlayer(playerID, playerUsername){
     return player
 }
 
-function createEnemy(enemy){
-    var enemy = {
-        id: enemy.id,
-        username: enemy.username,
-        position: enemy.position,
-        capeColor: enemy.capeColor,
-        velocity: enemy.velocity
+function createNode(node, type){
+    var newNode = {
+        id: node.id,
+        type: type,
+        x: node.position.x,
+        y: node.position.y,
     };
-    return enemy
+    return newNode
 }
 
 function killPlayer(playerID){
@@ -71,20 +76,24 @@ process.on('message', (msg) => {
 });
 
 //What to send to the clients
-function sendClient(){
+function sendClientPos(){
     for (var playerID in players){
+        var nodes = [];
         var player = players[playerID];
-        var visableEnemies = Object.values(players)
+
+        nodes.push(createNode(player, type.player))
+        nodes.concat(Object.values(players)
             .filter(function(enemy){
             if (enemy.x > player.x - maxScreenWidth/2 - 5 &&
                 enemy.x < player.x + maxScreenWidth/2 - 5 &&
                 enemy.y > player.y - maxScreenHeight/2 - 5 &&
                 enemy.y < player.y + maxScreenHeight/2 - 5 &&
                 enemy.id != player.id){
-                    return createEnemy(enemy)
+                    return createNode(enemy, type.enemy)
             }
-        });
-        process.send(sendInfo(player.id, 'update-client', {player: player, enemies: visableEnemies}));
+        }));
+
+        process.send(sendInfo(player.id, 'update-client-nodes', {nodes: nodes}));
     }
 }
 
@@ -110,15 +119,15 @@ function movePlayer(player){
 
 function newPlayerVelocity(keypress, velocity){
     //W Key Pressed
-    if (87 in keypress){
+    if (keypress.w){
         if (velocity.y >= 0.8){
             velocity.y = 1
         } else {
             velocity.y += 0.3
         }
     }
-    //A Key Pressed
-    if (65 in keypress){
+    //D Key Pressed
+    if (keypress.d){
         if (velocity.x >= 0.8){
             velocity.x = 1
         } else {
@@ -126,15 +135,15 @@ function newPlayerVelocity(keypress, velocity){
         }
     }
     //S Key Pressed
-    if (83 in keypress){
+    if (keypress.s){
         if (velocity.y <= -0.8){
             velocity.y = -1
         } else {
             velocity.y -= 0.3
         }
     }
-    //D Key Pressed
-    if (68 in keypress){
+    //A Key Pressed
+    if (keypress.a){
         if (velocity.x <= -0.8){
             velocity.x = -1
         } else {
@@ -145,5 +154,5 @@ function newPlayerVelocity(keypress, velocity){
 }
 
 setInterval(gameLoop, 1000 / 60);
-setInterval(sendClient, 1000 / 40);
+setInterval(sendClientPos, 1000 / 40);
 

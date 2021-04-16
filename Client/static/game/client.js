@@ -1,22 +1,17 @@
 // Player
 var model = {
-    nodes: {
-        // node:{type,x,y}
-    },
+    // types: 0 = player, 1 = enemy
+    nodes: [
+        // node:[{id,type,x,y}, ...]
+    ],
     player: {
-        state: {
-            
-        }
-    }
-}
+        //playerID:{username, capeColor, abilitiesUnlocked, activeAbilities, abilityCooldown}
+    },
+    enemies: [
+        //enemyID:{username,capeColor}
+    ],
+    events: {
 
-var player = {
-    username: "NULL",
-    lobbyCode: "NULL",
-    keypress: {},
-    target: {
-        x: 0,
-        y: 0
     }
 }
 
@@ -43,6 +38,15 @@ function publicClicked(){
 // -- Loops --
 function loop() {
     loopHandler = window.requestAnimFrame(loop);
+    TemporarySendDataToServer()
+}
+
+function TemporarySendDataToServer(){
+    var data = {
+        target: player.target,
+        keypress: keys
+    }
+    socket.emit('update-server', data)
 }
 
 // ---- Server ----
@@ -69,9 +73,8 @@ function socketConnections(socket) {
         loop();
     });
 
-    socket.on('update-client', function (data) {
-        //data = {player: player, enemies: [visableEnemies]}
-        // console.log(data)
+    socket.on('update-client-nodes', function (updatedNodes) {
+        model.nodes = updatedNodes
     });
 
     // -- Handle error --

@@ -24,7 +24,7 @@ function createNewPlayer(playerID, playerUsername){
         id: playerID,
         username: playerUsername,
         position: util.randomLocation(1024, 1024),
-        movementSpeed: 1,
+        movementSpeed: 0.1,
         direction: {x:0, y:0},
         abilitiesUnlocked: [],
         activeAbilities: ["","",""],
@@ -90,6 +90,7 @@ function sendClientPos(){
                     return createNode(enemy, type.enemy)
             }
         }));
+        console.log(nodes)
         process.send(sendInfo(player.id, 'update-client-nodes', nodes));
     }
 }
@@ -98,26 +99,21 @@ function sendClientPos(){
 function gameLoop(){
     for (var playerID in players){
         var player = players[playerID];
-        
-        //Move Player
-        player.velocity = newPlayerVelocity(player.direction,player.velocity)
-        player.position.x += player.velocity.x * player.movementSpeed
-        player.position.y += player.velocity.y * player.movementSpeed
-
+        tickPlayer(player)
     }
 }
 
-// //Update players cooldowns and movements
-// function tickPlayer(player){
-//     movePlayer(player)
-// }
+//Update players cooldowns and movements
+function tickPlayer(player){
+    movePlayer(player)
+}
 
-// function movePlayer(player){
-//     player.velocity = newPlayerVelocity(player.direction,player.velocity)
-//     player.x += player.velocity.x * player.movementSpeed
-//     player.y += player.velocity.y * player.movementSpeed
-//     return player
-// }
+function movePlayer(player){
+    //Move Player
+    player.velocity = newPlayerVelocity(player.direction,player.velocity)
+    player.position.x += player.velocity.x * player.movementSpeed
+    player.position.y += player.velocity.y * player.movementSpeed
+}
 
 function newPlayerVelocity(direction, velocity){
     //W Key Pressed

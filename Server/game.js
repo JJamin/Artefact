@@ -140,13 +140,13 @@ function newPlayerVelocity(direction, velocity){
         }
     }
 
-    if (direction.x == 0 && velocity.x != 0){
-        if (velocity.x < 0){
-            velocity.x += 0.1
-            if (velocity.x > 0){velocity.x = 0}
+    if (direction.y == 0 && velocity.y != 0){
+        if (velocity.y < 0){
+            velocity.y += 0.1
+            if (velocity.y > 0){velocity.y = 0}
         } else {
-            velocity.x -= 0.1
-            if (velocity.x < 0){velocity.x = 0}
+            velocity.y -= 0.1
+            if (velocity.y < 0){velocity.y = 0}
         }
     } else {
         velocity.y += 0.1*direction.y

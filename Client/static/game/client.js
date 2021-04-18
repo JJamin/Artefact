@@ -7,9 +7,9 @@ var model = {
     player: {
         //playerID:{username, capeColor, abilitiesUnlocked, activeAbilities, abilityCooldown}
     },
-    enemies: [
+    enemies: {
         //enemyID:{username,capeColor}
-    ],
+    },
     events: {
 
     }
@@ -36,18 +36,17 @@ function publicClicked(){
 }
 
 // -- Loops --
-function loop() {
-    loopHandler = window.requestAnimFrame(loop);
-    TemporarySendDataToServer()
-}
+// function loop() {
+//     loopHandler = window.requestAnimFrame(loop);
+//     TemporarySendDataToServer()
+// }
 
-function TemporarySendDataToServer(){
-    var data = {
-        target: player.target,
-        keypress: keys
-    }
-    socket.emit('update-server', data)
-}
+// function TemporarySendDataToServer(){
+//     var data = {
+//         keypress: keys
+//     }
+//     socket.emit('update-server', data)
+// }
 
 // ---- Server ----
 function startGame(){
@@ -62,15 +61,8 @@ function socketConnections(socket) {
 
     // -- Lobby Server Messages --
     socket.on('ingame', function (lobbyCode) {
-        player.lobbyCode = lobbyCode;
-
-        //Error with joining the game
-        if (player.lobbyCode == -1){
-
-        }
-
         //Join Success
-        loop();
+        // loop();
     });
 
     socket.on('update-client-nodes', function (updatedNodes) {

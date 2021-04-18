@@ -5,7 +5,6 @@ var util = require('./lib/utilities');
 var players = {}; //[PlayerID] -> Player
 var maxScreenWidth = 16;
 var maxScreenHeight = 16;
-var gamestate = "ingame"; //States: ingame, skillTree, settings
 
 //Enum for types
 const type = {
@@ -61,6 +60,7 @@ process.on('message', (msg) => {
     if (msg['type'] == 'addPlayer') {
         //msg = [playerID, playerUsername]
         players[msg['message'][0]] = createNewPlayer(msg['message'][0],msg['message'][1]);
+        // process.send(sendInfo(player.id, 'update-client-playerInfo', {nodes: nodes}));
     }
 
     if (msg['type'] == 'removePlayer') {
@@ -69,8 +69,7 @@ process.on('message', (msg) => {
     }
     
     if (msg['type'] == 'update-server') {
-        //msg = {target: {x: int, y: int}, keypress: {string}}
-        players[msg['playerID']].target = msg['message']['target'];
+        //msg = {keypress: {string}}
         players[msg['playerID']].keypress = msg['message']['keypress'];
     }
 });
@@ -92,7 +91,6 @@ function sendClientPos(){
                     return createNode(enemy, type.enemy)
             }
         }));
-
         process.send(sendInfo(player.id, 'update-client-nodes', {nodes: nodes}));
     }
 }

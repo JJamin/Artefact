@@ -67,7 +67,7 @@ io.on('connection', (socket) => {
 
     //update player's key presses and target
     socket.on('update-server', function(msg) {
-        // msg = {'target' : player.target, 'keypress' : keypress}
+        // msg = {'keypress' : keypress}
         lobbies[player.lobbyID]['lobby'].send(sendInfo(player.id, 'update-server', msg));
     });
 

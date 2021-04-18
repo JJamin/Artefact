@@ -54,12 +54,13 @@ io.on('connection', (socket) => {
         player.username = username;
 
         //Add player to socket dictionary
-        console.log('User ' + player.username + ' entered the battlefield');
         sockets[player.id] = socket;
 
         //Enter the player to a battlefield
         lobbyData = enterBattlefield(player);
         player.lobbyID = lobbyData[0]; player.lobbyCode = lobbyData[1];
+
+        console.log('User ' + player.username + ' entered the battlefield ' + lobbyData[1]);
 
         //Send to the player that setup is complete
         socket.emit('ingame', player.lobbyCode);
@@ -121,7 +122,7 @@ function enterBattlefield(player, lobbyCode = "NULL"){
     //Find a lobby that doesnt have a max player
     for (let lobby in lobbies) {
         if (lobbies[lobby]['playerCount'] < maxPeople){
-            if (lobbyCode != "NULL" && lobbies[lobby]['code'] == lobbyCode){
+            if (lobbyCode == "NULL" || (lobbyCode != "NULL" && lobbies[lobby]['code'] == lobbyCode)){
                 try {
                     lobbies[lobby]['playerCount'] += 1;
                     lobbies[lobby]['players'].push(player.id);
@@ -134,8 +135,10 @@ function enterBattlefield(player, lobbyCode = "NULL"){
             }
         }
     }
+
     //If you are searching for a lobby but that lobby doesnt exist, return [-1,-1]
     if (lobbyCode != "NULL"){return [-1,-1]}
+
     //If a lobby isn't found, make a new lobby
     console.log("MAKING A NEW LOBBY")
     lobbyPid = startLobby();

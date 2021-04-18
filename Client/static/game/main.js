@@ -169,9 +169,17 @@ var T = 0
 function frame() {
     T = performance.now()
 
+    // Update nodes
+    for (node of model.nodes) {
+        if (node.type == 0) {
+            G.nodes.player.position.x = node.x
+            G.nodes.player.position.y = node.y
+        }
+    }
+
     // Player controls
-    if (controls.x != 0) G.nodes.player.position.x += Math.sign(controls.x) * 0.162;
-    if (controls.z != 0) G.nodes.player.position.y += Math.sign(controls.z) * 0.162;
+    // if (controls.x != 0) G.nodes.player.position.x += Math.sign(controls.x) * 0.162;
+    // if (controls.z != 0) G.nodes.player.position.y += Math.sign(controls.z) * 0.162;
     // Cursor direction
     let dir = -Math.atan(controls.mx/controls.my)
     if (controls.my < 0 ) dir += Math.PI

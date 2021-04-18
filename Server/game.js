@@ -59,7 +59,14 @@ process.on('message', (msg) => {
         players[msg['message'][0]] = createNewPlayer(msg['message'][0],msg['message'][1]);
 
         //In the future, set their starter abilities in the info send too. TODO
-        // process.send(sendInfo(msg['message'][0], 'update-client-playerInfo', {username: player.username, capeColor: player.capeColor}));
+        newPlayerInfo = {}
+        newPlayerInfo[players[msg['message'][0]]] = {username: msg['message'][1], 
+                                                     capeColor: players[msg['message'][0]].capeColor,
+                                                     abilitiesUnlocked: [],
+                                                     activeAbilities: ["","",""],
+                                                     abilityCD: [0,0,0]
+                                                    }
+        process.send(sendInfo(msg['message'][0], 'update-client-playerInfo', newPlayerInfo));
     }
 
     if (msg['type'] == 'removePlayer') {
@@ -115,21 +122,40 @@ function movePlayer(player){
 }
 
 function newPlayerVelocity(direction, velocity){
-    //W Key Pressed
-    velocity.x += 0.2*direction.x
-    velocity.y += 0.2*direction.y
+    if (direction.x == 0 && velocity.x != 0){
+        if (velocity.x < 0){
+            velocity.x += 0.1
+            if (velocity.x > 0){velocity.x = 0}
+        } else {
+            velocity.x -= 0.1
+            if (velocity.x < 0){velocity.x = 0}
+        }
+    } else {
+        velocity.x += 0.1*direction.x
+        if (velocity.x > 1){
+            velocity.x = 1
+        }
+        if (velocity.x < -1){
+            velocity.x = -1
+        }
+    }
 
-    if (velocity.x > 1){
-        velocity.x = 1
-    }
-    if (velocity.y > 1){
-        velocity.y = 1
-    }
-    if (velocity.x < -1){
-        velocity.x = -1
-    }
-    if (velocity.y < -1){
-        velocity.y = -1
+    if (direction.x == 0 && velocity.x != 0){
+        if (velocity.x < 0){
+            velocity.x += 0.1
+            if (velocity.x > 0){velocity.x = 0}
+        } else {
+            velocity.x -= 0.1
+            if (velocity.x < 0){velocity.x = 0}
+        }
+    } else {
+        velocity.y += 0.1*direction.y
+        if (velocity.y > 1){
+            velocity.y = 1
+        }
+        if (velocity.y < -1){
+            velocity.y = -1
+        }
     }
 
     return velocity

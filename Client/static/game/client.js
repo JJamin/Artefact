@@ -65,6 +65,10 @@ function socketConnections(socket) {
         // console.log(model.nodes)
     });
 
+    socket.on('update-client-playerInfo', function (updatedPlayer) {
+        model.player = updatedPlayer
+    });
+
     // -- Handle error --
     socket.on('connect_failed', function () {
         socket.close();

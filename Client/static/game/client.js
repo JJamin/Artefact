@@ -43,7 +43,7 @@ function publicClicked(){
 
 // function TemporarySendDataToServer(){
 //     var data = {
-//         keypress: keys
+//         direction: keys
 //     }
 //     socket.emit('update-server', data)
 // }
@@ -67,7 +67,6 @@ function socketConnections(socket) {
 
     socket.on('update-client-nodes', function (updatedNodes) {
         model.nodes = updatedNodes
-        console.log(model.nodes)
     });
 
     // -- Handle error --

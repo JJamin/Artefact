@@ -67,7 +67,7 @@ io.on('connection', (socket) => {
 
     //update player's key presses and target
     socket.on('update-server', function(msg) {
-        // msg = {'keypress' : keypress}
+        // msg = {x : int, y : int}
         lobbies[player.lobbyID]['lobby'].send(sendInfo(player.id, 'update-server', msg));
     });
 
@@ -96,6 +96,12 @@ function startLobby(){
         if (msg['type'] == 'update-client-nodes') {
             if (msg['playerID'] in sockets){
                 sockets[msg['playerID']].emit('update-client-nodes', msg['message'])
+            }
+        }
+
+        if (msg['type'] == 'update-client-playerInfo') {
+            if (msg['playerID'] in sockets){
+                sockets[msg['playerID']].emit('update-client-playerInfo', msg['message'])
             }
         }
     });

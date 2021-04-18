@@ -24,12 +24,8 @@ function createNewPlayer(playerID, playerUsername){
         id: playerID,
         username: playerUsername,
         position: util.randomLocation(1024, 1024),
-        target: {
-            x: 0,
-            y: 0
-        },
         movementSpeed: 1,
-        keypress: {},
+        direction: {x:0, y:0},
         abilitiesUnlocked: [],
         activeAbilities: ["","",""],
         abilityCD: [0,0,0],
@@ -62,7 +58,8 @@ process.on('message', (msg) => {
         //msg = [playerID, playerUsername]
         players[msg['message'][0]] = createNewPlayer(msg['message'][0],msg['message'][1]);
 
-        // process.send(sendInfo(player.id, 'update-client-playerInfo', {nodes: nodes}));
+        //In the future, set their starter abilities in the info send too. TODO
+        // process.send(sendInfo(msg['message'][0], 'update-client-playerInfo', {username: player.username, capeColor: player.capeColor}));
     }
 
     if (msg['type'] == 'removePlayer') {
@@ -71,8 +68,9 @@ process.on('message', (msg) => {
     }
     
     if (msg['type'] == 'update-server') {
-        //msg = {keypress: {string}}
-        players[msg['playerID']].keypress = msg['message']['keypress'];
+        //msg = {direction: {string}}
+        players[msg['playerID']].direction = msg['message'];
+        console.log(msg['message'])
     }
 });
 
@@ -111,45 +109,31 @@ function tickPlayer(player){
 }
 
 function movePlayer(player){
-    player.velocity = newPlayerVelocity(player.keypress,player.velocity)
-    player.x += player.velocity * player.movementSpeed
-    player.y += player.velocity * player.movementSpeed
+    player.velocity = newPlayerVelocity(player.direction,player.velocity)
+    player.x += player.velocity.x * player.movementSpeed
+    player.y += player.velocity.y * player.movementSpeed
     return player
 }
 
-function newPlayerVelocity(keypress, velocity){
+function newPlayerVelocity(direction, velocity){
     //W Key Pressed
-    if (keypress.w){
-        if (velocity.y >= 0.8){
-            velocity.y = 1
-        } else {
-            velocity.y += 0.3
-        }
+    velocity.x += 0.2*direction.x
+    velocity.y += 0.2*direction.y
+
+    if (velocity.x > 1){
+        velocity.x = 1
     }
-    //D Key Pressed
-    if (keypress.d){
-        if (velocity.x >= 0.8){
-            velocity.x = 1
-        } else {
-            velocity.x += 0.3
-        }
+    if (velocity.y > 1){
+        velocity.y = 1
     }
-    //S Key Pressed
-    if (keypress.s){
-        if (velocity.y <= -0.8){
-            velocity.y = -1
-        } else {
-            velocity.y -= 0.3
-        }
+    if (velocity.x < -1){
+        velocity.x = -1
     }
-    //A Key Pressed
-    if (keypress.a){
-        if (velocity.x <= -0.8){
-            velocity.x = -1
-        } else {
-            velocity.x -= 0.3
-        }
+    if (velocity.y < -1){
+        velocity.y = -1
     }
+    // console.log(velocity)
+    // console.log(direction)
     return velocity
 }
 

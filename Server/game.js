@@ -34,7 +34,8 @@ function createNewPlayer(playerID, playerUsername){
         activeAbilities: ["","",""],
         abilityCD: [0,0,0],
         capeColor: util.randomColor(),
-        velocity: {x: 0, y: 0}
+        velocity: {x: 0, y: 0},
+        health: 100
     };
     return player
 }
@@ -60,6 +61,7 @@ process.on('message', (msg) => {
     if (msg['type'] == 'addPlayer') {
         //msg = [playerID, playerUsername]
         players[msg['message'][0]] = createNewPlayer(msg['message'][0],msg['message'][1]);
+
         // process.send(sendInfo(player.id, 'update-client-playerInfo', {nodes: nodes}));
     }
 
@@ -91,7 +93,7 @@ function sendClientPos(){
                     return createNode(enemy, type.enemy)
             }
         }));
-        process.send(sendInfo(player.id, 'update-client-nodes', {nodes: nodes}));
+        process.send(sendInfo(player.id, 'update-client-nodes', nodes));
     }
 }
 

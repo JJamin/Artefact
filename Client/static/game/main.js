@@ -249,8 +249,8 @@ var keys = {w:false,a:false,s:false,d:false}
 var updateKey = false
 function keyDown(e) {
     switch (e.keyCode) {
-        case 87: updateKey = true; keys.w = true; controls.z = 1.0; break;
-        case 83: updateKey = true; keys.s = true; controls.z =-1.0; break;
+        case 87: updateKey = true; keys.w = true; controls.y = 1.0; break;
+        case 83: updateKey = true; keys.s = true; controls.y =-1.0; break;
         case 68: updateKey = true; keys.d = true; controls.x = 1.0; break;
         case 65: updateKey = true; keys.a = true; controls.x =-1.0; break;
         default: break;
@@ -259,8 +259,8 @@ function keyDown(e) {
 }
 function keyUp(e) {
     switch (e.keyCode) {
-        case 87: updateKey = true; keys.w = false; if (controls.z == 1.0) if (keys.s) controls.z =-1.0; else controls.z = 0.0; break;
-        case 83: updateKey = true; keys.s = false; if (controls.z ==-1.0) if (keys.w) controls.z = 1.0; else controls.z = 0.0; break;
+        case 87: updateKey = true; keys.w = false; if (controls.y == 1.0) if (keys.s) controls.y =-1.0; else controls.y = 0.0; break;
+        case 83: updateKey = true; keys.s = false; if (controls.y ==-1.0) if (keys.w) controls.y = 1.0; else controls.y = 0.0; break;
         case 68: updateKey = true; keys.d = false; if (controls.x == 1.0) if (keys.a) controls.x =-1.0; else controls.x = 0.0; break;
         case 65: updateKey = true; keys.a = false; if (controls.x ==-1.0) if (keys.d) controls.x = 1.0; else controls.x = 0.0; break;
         default: break;

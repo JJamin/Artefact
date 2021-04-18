@@ -79,7 +79,7 @@ function init() {
 				upscaleScene.add( quad );
 
     G.scene = new THREE.Scene();
-    G.scene.background = new THREE.Color( 0xe26e6e );
+    G.scene.background = new THREE.Color( 0xE3A084 );
 
     // Initialize objects in scene
     G.nodes = {}
@@ -87,7 +87,7 @@ function init() {
 
     let textureLoader = new THREE.TextureLoader()
     { // Build player
-        let mat = new THREE.MeshBasicMaterial({color: 0x6A2F4C})
+        let mat = new THREE.MeshBasicMaterial({color: 0x44355D})
         // let mat = new THREE.MeshPhongMaterial({color: 0x6A2F4C})
         let body = new THREE.Mesh(new THREE.IcosahedronGeometry(0.33, 1), mat);
         body.scale.z = 1.5
@@ -99,7 +99,7 @@ function init() {
         G.nodes.player.add( head )
         
         let geo = new THREE.ConeGeometry( 0.6, 1.2, 5, 3, true, -Math.PI*0.6, Math.PI*1.2)
-        mat = new THREE.MeshBasicMaterial({color: 0x8262e3})
+        mat = new THREE.MeshBasicMaterial({color: 0x5C8BA8})
         let cape = new THREE.Mesh(geo, mat);
         cape.rotation.x = 1.2
         cape.position.z = 0.05 + body.position.z
@@ -149,7 +149,8 @@ function init() {
         }
     }
 
-    var grid = new THREE.GridHelper(16, 10);
+    var grid = new THREE.GridHelper(8, 8, colorCenterLine=0xDCDAC9, colorGrid=0xDCDAC9);
+    G.grid = grid
     grid.rotation.x = Math.PI/2
     G.scene.add(grid);
 

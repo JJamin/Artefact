@@ -189,6 +189,11 @@ function frame() {
     camera.position.set( camPos.x, camPos.y, camPos.z)
     camera.lookAt(G.nodes.player.position)
 
+    // Notify server of key updates
+    if (updateKey) {
+        SendDataToServer()
+    }
+
     // Draw scene
     renderScene()
 
@@ -240,32 +245,29 @@ function downloadFiles(directory,type,names,action,callback) {
         request.send()
     })
 }
-var keys = {w:false,a:false,s:false,d:false,space:false,shift:false}
+var keys = {w:false,a:false,s:false,d:false}
+var updateKey = false
 function keyDown(e) {
     switch (e.keyCode) {
-        case 87: keys.w = true; controls.z = 1.0; break;
-        case 83: keys.s = true; controls.z =-1.0; break;
-        case 68: keys.d = true; controls.x = 1.0; break;
-        case 65: keys.a = true; controls.x =-1.0; break;
-        case 32: keys.space = true; controls.y = 1.0; break;
-        case 16: keys.shift = true; controls.y =-1.0; break;
+        case 87: updateKey = true; keys.w = true; controls.z = 1.0; break;
+        case 83: updateKey = true; keys.s = true; controls.z =-1.0; break;
+        case 68: updateKey = true; keys.d = true; controls.x = 1.0; break;
+        case 65: updateKey = true; keys.a = true; controls.x =-1.0; break;
         default: break;
     }
     return false
 }
 function keyUp(e) {
     switch (e.keyCode) {
-        case 87: keys.w = false; if (controls.z == 1.0) if (keys.s) controls.z =-1.0; else controls.z = 0.0; break;
-        case 83: keys.s = false; if (controls.z ==-1.0) if (keys.w) controls.z = 1.0; else controls.z = 0.0; break;
-        case 68: keys.d = false; if (controls.x == 1.0) if (keys.a) controls.x =-1.0; else controls.x = 0.0; break;
-        case 65: keys.a = false; if (controls.x ==-1.0) if (keys.d) controls.x = 1.0; else controls.x = 0.0; break;
-        case 32: keys.space = false; if (controls.y == 1.0) if (keys.shift) controls.y =-1.0; else controls.y = 0.0; break;
-        case 16: keys.shift = false; if (controls.y ==-1.0) if (keys.space) controls.y = 1.0; else controls.y = 0.0; break;
+        case 87: updateKey = true; keys.w = false; if (controls.z == 1.0) if (keys.s) controls.z =-1.0; else controls.z = 0.0; break;
+        case 83: updateKey = true; keys.s = false; if (controls.z ==-1.0) if (keys.w) controls.z = 1.0; else controls.z = 0.0; break;
+        case 68: updateKey = true; keys.d = false; if (controls.x == 1.0) if (keys.a) controls.x =-1.0; else controls.x = 0.0; break;
+        case 65: updateKey = true; keys.a = false; if (controls.x ==-1.0) if (keys.d) controls.x = 1.0; else controls.x = 0.0; break;
         default: break;
     }
     return false
 }
-var controls = {z:0,x:0,y:0,mx:1,my:1}
+var controls = {x:0,y:0,mx:1,my:1}
 function mouseMove(e) { 
     controls.mx = ((e.clientX/window.innerWidth) * 1.0) - 0.5
     controls.my = ((e.clientY/window.innerHeight) * -1.0) + 0.5

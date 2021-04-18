@@ -132,6 +132,8 @@ function init() {
             G.nodes.player.add( hat )
         });
     }
+    G.scene.add(G.nodes.player);
+
     { // Random rocks
         const tex = new textureLoader.load('/static/img/rock.png');  
         tex.magFilter = THREE.NearestFilter;
@@ -139,15 +141,18 @@ function init() {
         const mat = new THREE.SpriteMaterial( { map: tex } );
         for (var i = 0; i<32; ++i) {
             const rock = new THREE.Sprite( mat );
-            rock.position.x = Math.random() * 64 - 32
-            rock.position.y = Math.random() * 64 - 32
+            rock.position.x = Math.random() * 128 - 64
+            rock.position.y = Math.random() * 128 - 64
             rock.scale.x = 1/PREF.scale*2.0// 0.5 //tex.image.width //* PREF.scale
             rock.scale.y = 1/PREF.scale*2.0//0.5 //tex.image.width //* PREF.scale
             G.scene.add( rock )
         }
     }
 
-    G.scene.add(G.nodes.player);
+    var grid = new THREE.GridHelper(16, 10);
+    grid.rotation.x = Math.PI/2
+    G.scene.add(grid);
+
 
     // var sun = new THREE.DirectionalLight( 0xffffff );
     // sun.position.set( 0, 1, 1 ).normalize();
@@ -169,9 +174,14 @@ var T = 0
 function frame() {
     T = performance.now()
 
-    // Player controls
-    if (controls.x != 0) G.nodes.player.position.x += Math.sign(controls.x) * 0.162;
-    if (controls.z != 0) G.nodes.player.position.y += Math.sign(controls.z) * 0.162;
+    // Update nodes
+    for (node of model.nodes) {
+        if (node.type == 0) {
+            G.nodes.player.position.x = node.x
+            G.nodes.player.position.y = node.y
+        }
+    }
+
     // Cursor direction
     let dir = -Math.atan(controls.mx/controls.my)
     if (controls.my < 0 ) dir += Math.PI

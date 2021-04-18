@@ -87,16 +87,19 @@ function sendClientPos(){
         var player = players[playerID];
 
         nodes.push(createNode(player, type.player))
-        nodes.concat(Object.values(players)
-            .filter(function(enemy){
-            if (enemy.x > player.position.x - maxScreenWidth/2 - 5 &&
-                enemy.x < player.position.x + maxScreenWidth/2 - 5 &&
-                enemy.y > player.position.y - maxScreenHeight/2 - 5 &&
-                enemy.y < player.position.y + maxScreenHeight/2 - 5 &&
+        enemies = (Object.values(players).filter(function(enemy){
+            if (enemy.position.x > player.position.x - maxScreenWidth/2 - 5 &&
+                enemy.position.x < player.position.x + maxScreenWidth/2 - 5 &&
+                enemy.position.y > player.position.y - maxScreenHeight/2 - 5 &&
+                enemy.position.y < player.position.y + maxScreenHeight/2 - 5 &&
                 enemy.id != player.id){
-                    return createNode(enemy, type.enemy)
+                    return 1
             }
         }));
+        for (var i = 0; i < enemies.length; ++i){
+            nodes.push(createNode(enemies[i], type.enemy))
+        }
+        console.log(nodes)
         process.send(sendInfo(player.id, 'update-client-nodes', nodes));
     }
 }

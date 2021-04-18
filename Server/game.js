@@ -124,14 +124,14 @@ function movePlayer(player){
 function newPlayerVelocity(direction, velocity){
     if (direction.x == 0 && velocity.x != 0){
         if (velocity.x < 0){
-            velocity.x += 0.1
+            velocity.x += 0.08
             if (velocity.x > 0){velocity.x = 0}
         } else {
-            velocity.x -= 0.1
+            velocity.x -= 0.08
             if (velocity.x < 0){velocity.x = 0}
         }
     } else {
-        velocity.x += 0.2*direction.x
+        velocity.x += 0.25*direction.x
         if (velocity.x > 1){
             velocity.x = 1
         }
@@ -142,14 +142,14 @@ function newPlayerVelocity(direction, velocity){
 
     if (direction.y == 0 && velocity.y != 0){
         if (velocity.y < 0){
-            velocity.y += 0.1
+            velocity.y += 0.08
             if (velocity.y > 0){velocity.y = 0}
         } else {
-            velocity.y -= 0.1
+            velocity.y -= 0.08
             if (velocity.y < 0){velocity.y = 0}
         }
     } else {
-        velocity.y += 0.2*direction.y
+        velocity.y += 0.25*direction.y
         if (velocity.y > 1){
             velocity.y = 1
         }

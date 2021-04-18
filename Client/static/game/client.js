@@ -35,18 +35,13 @@ function publicClicked(){
     startGame();
 }
 
-// -- Loops --
-// function loop() {
-//     loopHandler = window.requestAnimFrame(loop);
-//     TemporarySendDataToServer()
-// }
-
-// function TemporarySendDataToServer(){
-//     var data = {
-//         keypress: keys
-//     }
-//     socket.emit('update-server', data)
-// }
+function SendDataToServer(){
+    var data = {
+        x: controls.x,
+        y: controls.y
+    }
+    socket.emit('update-server', data)
+}
 
 // ---- Server ----
 function startGame(){
@@ -67,7 +62,7 @@ function socketConnections(socket) {
 
     socket.on('update-client-nodes', function (updatedNodes) {
         model.nodes = updatedNodes
-        console.log(model.nodes)
+        // console.log(model.nodes)
     });
 
     // -- Handle error --

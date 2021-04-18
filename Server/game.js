@@ -24,7 +24,7 @@ function createNewPlayer(playerID, playerUsername){
         id: playerID,
         username: playerUsername,
         position: util.randomLocation(0, 0),
-        movementSpeed: 0.1,
+        movementSpeed: 0.2,
         direction: {x:0, y:0},
         abilitiesUnlocked: [],
         activeAbilities: ["","",""],
@@ -131,7 +131,7 @@ function newPlayerVelocity(direction, velocity){
             if (velocity.x < 0){velocity.x = 0}
         }
     } else {
-        velocity.x += 0.1*direction.x
+        velocity.x += 0.2*direction.x
         if (velocity.x > 1){
             velocity.x = 1
         }
@@ -149,7 +149,7 @@ function newPlayerVelocity(direction, velocity){
             if (velocity.y < 0){velocity.y = 0}
         }
     } else {
-        velocity.y += 0.1*direction.y
+        velocity.y += 0.2*direction.y
         if (velocity.y > 1){
             velocity.y = 1
         }

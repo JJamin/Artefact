@@ -1,8 +1,4 @@
-const SCALE = 3
-const PREF = {
-    scale: 3,
-    viewAngle: 40
-}
+const SCALE = 2
 var SOURCE = {
     img:{},
     sound:{}
@@ -29,7 +25,7 @@ function init() {
     const near = 0.1;
     const far = 1024;
     let unit = 8;
-    camera = new THREE.OrthographicCamera( view.width / -24, view.width / 24, view.height / 24, view.height / -24, -128, 512 );
+    camera = new THREE.OrthographicCamera( view.width / -16, view.width / 16, view.height / 16, view.height / -16, -128, 512 );
     // camera = new THREE.PerspectiveCamera(fov=10, window.innerWidth / window.innerHeight, near, far);
     camera.up.set( 0, 0, 1 )
     camera.position.z = 24;
@@ -88,16 +84,20 @@ function init() {
     let textureLoader = new THREE.TextureLoader()
     { // Build player
         let mat = new THREE.MeshBasicMaterial({color: 0x44355D})
-        // let mat = new THREE.MeshPhongMaterial({color: 0x6A2F4C})
+        // let mat = new THREE.MeshPhongMaterial({color: 0x44355D})
+
+        //body
         let body = new THREE.Mesh(new THREE.IcosahedronGeometry(0.33, 1), mat);
         body.scale.z = 1.5
-        body.position.z = 0.8
+        body.position.z = 0.5
         G.nodes.player.add( body )
 
+        // Head
         let head = new THREE.Mesh(new THREE.IcosahedronGeometry(0.2, 1), mat);
         head.position.z = 0.62 + body.position.z
         G.nodes.player.add( head )
         
+        // Cape
         let geo = new THREE.ConeGeometry( 0.6, 1.2, 5, 3, true, -Math.PI*0.6, Math.PI*1.2)
         mat = new THREE.MeshBasicMaterial({color: 0x5C8BA8})
         let cape = new THREE.Mesh(geo, mat);
@@ -107,30 +107,28 @@ function init() {
         cape.material.side = THREE.DoubleSide
         G.nodes.player.add( cape )
 
-        // let mat2 = new THREE.MeshBasicMaterial({color: 0x6A2F4C})
-        // let geo = new THREE.ConeGeometry(0.6, 0.7,
-        //                                  6, 1,
-        //                                  true, -Math.PI/4, Math.PI/2)
-        // let cape = new THREE.Mesh(geo, mat2);
-        // cape.position.z = 1.62 + body.position.z
-        // G.nodes.player.add( cape )
-        // console.log( geo ) 
-
+        // Hat
         textureLoader.load('/static/img/hat.png',(tex)=>{
             console.log(tex.image.width)
             tex.magFilter = THREE.NearestFilter;
             tex.minFilter = THREE.NearestFilter;
             mat = new THREE.SpriteMaterial( { map: tex } );
-            // mat.size = 0.2
             // mat.sizeAttenuation = false
             const hat = new THREE.Sprite( mat );
-            hat.position.z = 0.95 + body.position.z
-            hat.scale.x = 1/PREF.scale*2.0// 0.5 //tex.image.width //* PREF.scale
-            hat.scale.y = 1/PREF.scale*2.0//0.5 //tex.image.width //* PREF.scale
+            hat.position.z = 1 + body.position.z
+            // hat.scale.x = 1/SCALE*2.0// 0.5 //tex.image.width //* PREF.scale
+            // hat.scale.y = 1/SCALE*2.0//0.5 //tex.image.width //* PREF.scale
             console.log(hat.scale.y) 
             G.nodes.hat = hat
             G.nodes.player.add( hat )
         });
+
+        // Shadow
+        mat = new THREE.MeshBasicMaterial({color: 0xC77369})
+        let shadow = new THREE.Mesh(new THREE.CircleGeometry( 0.7, 12 ), mat);
+        // head.position.z = 0.62 + body.position.z
+        G.nodes.player.add( shadow )
+
     }
     G.scene.add(G.nodes.player);
 
@@ -141,22 +139,23 @@ function init() {
         const mat = new THREE.SpriteMaterial( { map: tex } );
         for (var i = 0; i<32; ++i) {
             const rock = new THREE.Sprite( mat );
+            // rock.rotation.x = 0.5
             rock.position.x = Math.random() * 128 - 64
             rock.position.y = Math.random() * 128 - 64
-            rock.scale.x = 1/PREF.scale*2.0// 0.5 //tex.image.width //* PREF.scale
-            rock.scale.y = 1/PREF.scale*2.0//0.5 //tex.image.width //* PREF.scale
+            // rock.scale.x = 1/SCALE*2.0// 0.5 //tex.image.width //* PREF.scale
+            // rock.scale.y = 1/SCALE*2.0//0.5 //tex.image.width //* PREF.scale
             G.scene.add( rock )
         }
     }
 
-    var grid = new THREE.GridHelper(8, 8, colorCenterLine=0xDCDAC9, colorGrid=0xDCDAC9);
+    var grid = new THREE.GridHelper(32, 32, colorCenterLine=0xDCDAC9, colorGrid=0xE7AD8B);
     G.grid = grid
     grid.rotation.x = Math.PI/2
     G.scene.add(grid);
 
 
     // var sun = new THREE.DirectionalLight( 0xffffff );
-    // sun.position.set( 0, 1, 1 ).normalize();
+    // sun.position.set( 1, -1, 1 ).normalize();
     // G.scene.add(sun);
 
     window.addEventListener('resize',resize)
@@ -178,8 +177,8 @@ function frame() {
     // Update nodes
     for (node of model.nodes) {
         if (node.type == 0) {
-            G.nodes.player.position.x = node.x
-            G.nodes.player.position.y = node.y
+            G.nodes.player.position.x += (node.x - G.nodes.player.position.x ) * 0.8
+            G.nodes.player.position.y += (node.y - G.nodes.player.position.y ) * 0.8
         }
     }
 
@@ -225,8 +224,9 @@ function setScale() {
     view.zoom = 1.0
     view.viewWidth = window.innerWidth
     view.viewHeight = window.innerHeight
-    view.width = Math.ceil(window.innerWidth / PREF.scale)
-    view.height = Math.ceil(window.innerHeight / PREF.scale)
+    let aspect = window.innerWidth / window.innerWidth
+    view.width = Math.ceil(window.innerWidth / SCALE)
+    view.height = Math.ceil(window.innerHeight / SCALE)
 }
 function setCamera() {
     camera.aspect =  view.width / view.height

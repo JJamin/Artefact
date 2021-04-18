@@ -70,7 +70,6 @@ process.on('message', (msg) => {
     if (msg['type'] == 'update-server') {
         //msg = {direction: {string}}
         players[msg['playerID']].direction = msg['message'];
-        console.log(msg['message'])
     }
 });
 
@@ -83,10 +82,10 @@ function sendClientPos(){
         nodes.push(createNode(player, type.player))
         nodes.concat(Object.values(players)
             .filter(function(enemy){
-            if (enemy.x > player.x - maxScreenWidth/2 - 5 &&
-                enemy.x < player.x + maxScreenWidth/2 - 5 &&
-                enemy.y > player.y - maxScreenHeight/2 - 5 &&
-                enemy.y < player.y + maxScreenHeight/2 - 5 &&
+            if (enemy.x > player.position.x - maxScreenWidth/2 - 5 &&
+                enemy.x < player.position.x + maxScreenWidth/2 - 5 &&
+                enemy.y > player.position.y - maxScreenHeight/2 - 5 &&
+                enemy.y < player.position.y + maxScreenHeight/2 - 5 &&
                 enemy.id != player.id){
                     return createNode(enemy, type.enemy)
             }
@@ -99,21 +98,26 @@ function sendClientPos(){
 function gameLoop(){
     for (var playerID in players){
         var player = players[playerID];
-        tickPlayer(player)
+        
+        //Move Player
+        player.velocity = newPlayerVelocity(player.direction,player.velocity)
+        player.position.x += player.velocity.x * player.movementSpeed
+        player.position.y += player.velocity.y * player.movementSpeed
+
     }
 }
 
-//Update players cooldowns and movements
-function tickPlayer(player){
-    movePlayer(player)
-}
+// //Update players cooldowns and movements
+// function tickPlayer(player){
+//     movePlayer(player)
+// }
 
-function movePlayer(player){
-    player.velocity = newPlayerVelocity(player.direction,player.velocity)
-    player.x += player.velocity.x * player.movementSpeed
-    player.y += player.velocity.y * player.movementSpeed
-    return player
-}
+// function movePlayer(player){
+//     player.velocity = newPlayerVelocity(player.direction,player.velocity)
+//     player.x += player.velocity.x * player.movementSpeed
+//     player.y += player.velocity.y * player.movementSpeed
+//     return player
+// }
 
 function newPlayerVelocity(direction, velocity){
     //W Key Pressed
@@ -132,8 +136,7 @@ function newPlayerVelocity(direction, velocity){
     if (velocity.y < -1){
         velocity.y = -1
     }
-    // console.log(velocity)
-    // console.log(direction)
+
     return velocity
 }
 

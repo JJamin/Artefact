@@ -29,7 +29,7 @@ function SendDataToServer(){
 }
 
 // ---- Server ----
-function connect(){
+function connect() {
     socket = io.connect('http://localhost:8000');
     socketConnections(socket);
     socket.emit('joinGame', "Player");
@@ -45,6 +45,7 @@ function socketConnections(socket) {
 
     socket.on('update-client-nodes', function (updatedNodes) {
         model.nodes = updatedNodes
+        syncNodes()
         // console.log(model.nodes)
     });
 

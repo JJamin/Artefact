@@ -20,13 +20,14 @@ function init() {
     view.canvas = document.getElementById('view');
     renderer = new THREE.WebGLRenderer({canvas:view.canvas});
     renderer.autoClear = false;
+    // renderer.setPixelRatio(window.devicePixelRatio)
 
     setScale()
 
     const near = 0.1;
     const far = 1024;
     let unit = 8;
-    camera = new THREE.OrthographicCamera( view.width / -20, view.width / 20, view.height / 20, view.height / -20, -128, 512 );
+    camera = new THREE.OrthographicCamera( view.width / -16, view.width / 16, view.height / 16, view.height / -16, -128, 512 );
     // camera = new THREE.PerspectiveCamera(fov=10, window.innerWidth / window.innerHeight, near, far);
     camera.up.set( 0, 0, 1 )
     camera.position.z = 24;
@@ -83,7 +84,7 @@ function init() {
     
     G.nodes = {}
     // G.nodes.player = new THREE.Group()
-    G.nodes.player = CreateMesh.player(capeColor=0x5C8BA8)
+    // G.nodes.player = CreateMesh.player(capeColor=0x5C8BA8)
 
     // { // Build player
         
@@ -94,7 +95,7 @@ function init() {
     //     G.nodes.player.add( shadow )
 
     // }
-    G.scene.add(G.nodes.player);
+    // G.scene.add(G.nodes.player);
 
     { // Random rocks
         const tex = G.textureLoader.load('/static/img/rock.png');  
@@ -126,11 +127,28 @@ function init() {
 
     window.addEventListener('resize',resize)
     
+    // Update camera projection matrix
     setCamera()
-    run = true
-    frame()
 
+    // Begin world sync
     connect()
+
+    // Wait for sufficient world information
+    let findPlayer = ()=>{
+        if ("player" in G.nodes) {
+            run = true
+            frame()
+        } else {
+            setInterval(findPlayer, 100)
+        }
+
+        // G.player = 
+        // run = true
+        // frame()
+        
+    }
+
+    findPlayer()
 
 }
 var viewVector = new THREE.Vector3( 0, 1, 0 );
@@ -142,14 +160,14 @@ function frame() {
     T = performance.now()
 
     // Update nodes
-    syncNodes()
+    animateNodes()
 
     // Cursor direction
     dir = -Math.atan(controls.mx/controls.my)
     if (controls.my < 0 ) dir += Math.PI
 
     // Point player with cursor directionw
-    G.nodes.player.rotation.z = dir
+    // G.nodes.player.rotation.z = dir
 
     // Camera positioning
     viewVector.set(0,1,0)
@@ -172,12 +190,33 @@ function frame() {
     if (run) requestAnimationFrame(frame)
 
 }
+function animateNodes() {
+    for (let nodeID in model.nodes) {
+        let target = model.nodes[nodeID]
+        node = G.nodes[nodeID]
+        node.position.x += (target.x - G.nodes[nodeID].position.x ) * 0.8
+        node.position.y += (target.y - G.nodes[nodeID].position.y ) * 0.8
+    }
+}
 function syncNodes() {
     for (let nodeID in model.nodes) {
         node = model.nodes[nodeID]
-        if (node.type == 0) {
-            G.nodes.player.position.x += (node.x - G.nodes.player.position.x ) * 0.8
-            G.nodes.player.position.y += (node.y - G.nodes.player.position.y ) * 0.8
+        if (nodeID in G.nodes) {
+            // Node exists
+            // G.nodes[nodeID].position.x += (node.x - G.nodes[nodeID].position.x ) * 0.8
+            // G.nodes[nodeID].position.y += (node.y - G.nodes[nodeID].position.y ) * 0.8
+
+        } else {
+            // Create new node
+            console.log("create new node")
+            G.nodes[nodeID] = CreateMesh.player()
+            G.nodes[nodeID].position.x = node.x
+            G.nodes[nodeID].position.y = node.y
+            G.scene.add(G.nodes[nodeID])
+            if (node.type == 0) {
+                G.nodes.player = G.nodes[nodeID]
+            }
+
         }
     }
 }
@@ -193,9 +232,8 @@ function renderScene() {
 }
 function setScale() {
     view.zoom = 1.0
-    view.viewWidth = window.innerWidth
-    view.viewHeight = window.innerHeight
-    let aspect = window.innerWidth / window.innerWidth
+    view.viewWidth = window.innerWidth//*window.devicePixelRatio
+    view.viewHeight = window.innerHeight//*window.devicePixelRatio
     view.width = Math.ceil(window.innerWidth / SCALE)
     view.height = Math.ceil(window.innerHeight / SCALE)
 }

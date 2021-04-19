@@ -16,7 +16,6 @@ const CreateMesh = {
         head.position.z = 0.62 + body.position.z
         group.add( head )
         
-        
         // Cape
         let geo = new THREE.ConeGeometry( 0.6, 1.2, 5, 3, true, -Math.PI*0.6, Math.PI*1.2)
         mat = new THREE.MeshBasicMaterial({color: capeColor})
@@ -42,10 +41,10 @@ const CreateMesh = {
         });
 
         // Gun
-        mat = new THREE.MeshBasicMaterial({color: 0x5C486A })
-        let gun = new THREE.Mesh(new THREE.CylinderGeometry( 0.15, 0.15, 0.5, 3 ), mat);
-        gun.position.x = 0.6
-        cape.position.y = -0.2 + body.position.y
+        mat = new THREE.MeshBasicMaterial({color: 0xB8B4B2 })
+        let gun = new THREE.Mesh(new THREE.CylinderGeometry( 0.2, 0.2, 0.9, 3 ), mat);
+        gun.position.x = 0.35
+        gun.position.z = -0.1 + body.position.z
         group.add( gun )
 
         return group

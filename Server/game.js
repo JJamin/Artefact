@@ -170,6 +170,7 @@ function newPlayerVelocity(direction, velocity){
     if (speed > 1){
         velocity.y /= speed
         velocity.x /= speed
+        console.log("TEST")
     }
     return velocity
 }

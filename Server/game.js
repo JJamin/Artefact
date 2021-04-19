@@ -54,6 +54,7 @@ function createNode(node, type){
         type: type,
         x: node.position.x,
         y: node.position.y,
+        dir: node.direction.dir
     };
     return newNode
 }

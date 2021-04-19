@@ -139,7 +139,7 @@ function init() {
             run = true
             frame()
         } else {
-            setInterval(findPlayer, 100)
+            setTimeout(findPlayer, 100)
         }
 
         // G.player = 

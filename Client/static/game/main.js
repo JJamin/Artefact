@@ -118,7 +118,6 @@ function init() {
             hat.position.z = 1.2 + body.position.z
             // hat.scale.x = 1/SCALE*2.0// 0.5 //tex.image.width //* PREF.scale
             // hat.scale.y = 1/SCALE*2.0//0.5 //tex.image.width //* PREF.scale
-            console.log(hat.scale.y) 
             G.nodes.hat = hat
             G.nodes.player.add( hat )
         });
@@ -170,6 +169,7 @@ function init() {
 var viewVector = new THREE.Vector3( 0, 1, 0 );
 
 var T = 0
+var dir = 0
 // const RAD = Math.PI / 2;
 function frame() {
     T = performance.now()
@@ -184,7 +184,7 @@ function frame() {
     }
 
     // Cursor direction
-    let dir = -Math.atan(controls.mx/controls.my)
+    dir = -Math.atan(controls.mx/controls.my)
     if (controls.my < 0 ) dir += Math.PI
 
     // Point player with cursor directionw

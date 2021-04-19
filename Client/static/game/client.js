@@ -38,7 +38,8 @@ function publicClicked(){
 function SendDataToServer(){
     var data = {
         x: controls.x,
-        y: controls.y
+        y: controls.y,
+        dir: dir
     }
     socket.emit('update-server', data)
 }

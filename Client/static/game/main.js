@@ -1,4 +1,5 @@
 const SCALE = 2
+const UNIT = 8
 var SOURCE = {
     img:{},
     sound:{}
@@ -105,6 +106,7 @@ function init() {
             // rock.rotation.x = 0.5
             rock.position.x = Math.random() * 128 - 64
             rock.position.y = Math.random() * 128 - 64
+            rock.position.z = 0.5
             // rock.scale.x = 1/SCALE*2.0// 0.5 //tex.image.width //* PREF.scale
             // rock.scale.y = 1/SCALE*2.0//0.5 //tex.image.width //* PREF.scale
             G.scene.add( rock )

@@ -37,11 +37,11 @@ function connect() {
 
 function socketConnections(socket) {
 
-    // -- Lobby Server Messages --
-    socket.on('ingame', function (lobbyCode) {
-        //Join Success
-        // loop();
-    });
+    // // -- Lobby Server Messages --
+    // socket.on('ingame', function (lobbyCode) {
+    //     //Join Success
+    //     // loop();
+    // });
 
     socket.on('update-client-nodes', function (updatedNodes) {
         model.nodes = updatedNodes
@@ -50,6 +50,8 @@ function socketConnections(socket) {
     });
 
     socket.on('update-client-playerInfo', function (updatedPlayer) {
+        console.log("HELLO")
+        console.log(model.player)
         model.player = updatedPlayer
     });
 

@@ -63,7 +63,7 @@ io.on('connection', (socket) => {
         console.log('User ' + player.username + ' entered the battlefield ' + lobbyData[1]);
 
         //Send to the player that setup is complete
-        socket.emit('ingame', player.lobbyCode);
+        // socket.emit('ingame', player.lobbyCode);
     });
 
     //update player's key presses and target
@@ -103,6 +103,7 @@ function startLobby(){
         if (msg['type'] == 'update-client-playerInfo') {
             if (msg['playerID'] in sockets){
                 sockets[msg['playerID']].emit('update-client-playerInfo', msg['message'])
+                console.log(msg['message'])
             }
         }
     });

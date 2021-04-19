@@ -76,7 +76,7 @@ process.on('message', (msg) => {
 
         //In the future, set their starter abilities in the info send too. TODO
         newPlayerInfo = {}
-        newPlayerInfo[players[msg['message'][0]]] = {username: msg['message'][1], 
+        newPlayerInfo[msg['message'][0]] = {username: msg['message'][1], 
                                                      capeColor: players[msg['message'][0]].capeColor,
                                                      abilitiesUnlocked: [],
                                                      activeAbilities: ["","",""],

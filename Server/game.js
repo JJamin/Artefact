@@ -130,45 +130,48 @@ function newPlayerVelocity(direction, velocity){
     velocity.y = (direction.y * Math.cos(direction.dir)) + (direction.x * Math.sin(direction.dir))
     velocity.x = -direction.y * Math.sin(direction.dir) + (direction.x * Math.cos(direction.dir))
 
+    if (direction.x == 0 && velocity.x != 0){
+        if (velocity.x < 0){
+            velocity.x += 0.08
+            if (velocity.x > 0){velocity.x = 0}
+        } else {
+            velocity.x -= 0.08
+            if (velocity.x < 0){velocity.x = 0}
+        }
+    } else {
+        velocity.x += 0.25*direction.x
+        if (velocity.x > 1){
+            velocity.x = 1
+        }
+        if (velocity.x < -1){
+            velocity.x = -1
+        }
+    }
+
+    if (direction.y == 0 && velocity.y != 0){
+        if (velocity.y < 0){
+            velocity.y += 0.08
+            if (velocity.y > 0){velocity.y = 0}
+        } else {
+            velocity.y -= 0.08
+            if (velocity.y < 0){velocity.y = 0}
+        }
+    } else {
+        velocity.y += 0.25*direction.y
+        if (velocity.y > 1){
+            velocity.y = 1
+        }
+        if (velocity.y < -1){
+            velocity.y = -1
+        }
+    }
+
+    var speed = Math.sqrt(velocity.y**2 + velocity.x**2)
+    if (speed > 1){
+        velocity.y /= speed
+        velocity.x /= speed
+    }
     return velocity
-
-    // if (direction.x == 0 && velocity.x != 0){
-    //     if (velocity.x < 0){
-    //         velocity.x += 0.08
-    //         if (velocity.x > 0){velocity.x = 0}
-    //     } else {
-    //         velocity.x -= 0.08
-    //         if (velocity.x < 0){velocity.x = 0}
-    //     }
-    // } else {
-    //     velocity.x += 0.25*direction.x
-    //     if (velocity.x > 1){
-    //         velocity.x = 1
-    //     }
-    //     if (velocity.x < -1){
-    //         velocity.x = -1
-    //     }
-    // }
-
-    // if (direction.y == 0 && velocity.y != 0){
-    //     if (velocity.y < 0){
-    //         velocity.y += 0.08
-    //         if (velocity.y > 0){velocity.y = 0}
-    //     } else {
-    //         velocity.y -= 0.08
-    //         if (velocity.y < 0){velocity.y = 0}
-    //     }
-    // } else {
-    //     velocity.y += 0.25*direction.y
-    //     if (velocity.y > 1){
-    //         velocity.y = 1
-    //     }
-    //     if (velocity.y < -1){
-    //         velocity.y = -1
-    //     }
-    // }
-
-    // return velocity
 }
 
 setInterval(gameLoop, 1000 / 60);

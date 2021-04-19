@@ -2,14 +2,25 @@
 var util = require('./lib/utilities');
 
 //Variables
-var players = {}; //[PlayerID] -> Player
 var maxScreenWidth = 16;
 var maxScreenHeight = 16;
+var worldChunk = 64;
+
+var players = {}; //[PlayerID] -> Player
+var world = [];
+for(var i=0; i<worldChunk; ++i) {
+    world.push([]);
+    for(var j=0; j<worldChunk; ++j) {
+        world[i].push({});
+    }
+}
 
 //Enum for types
 const type = {
 	player: 0,
 	enemy: 1,
+    ability: 2,
+    object: 3
 }
 
 //helper functions
@@ -24,14 +35,15 @@ function createNewPlayer(playerID, playerUsername){
         id: playerID,
         username: playerUsername,
         position: util.randomLocation(0, 0),
-        movementSpeed: 0.3,
+        movementSpeed: 0.35,
         direction: {x:0, y:0, dir: 0},
         abilitiesUnlocked: [],
         activeAbilities: ["","",""],
         abilityCD: [0,0,0],
         capeColor: util.randomColor(),
         velocity: {x: 0, y: 0},
-        health: 100
+        health: 100,
+        currentChunk: {x:0, y:0}
     };
     return player
 }
@@ -57,6 +69,9 @@ process.on('message', (msg) => {
     if (msg['type'] == 'addPlayer') {
         //msg = [playerID, playerUsername]
         players[msg['message'][0]] = createNewPlayer(msg['message'][0],msg['message'][1]);
+        var chunk = util.getChunk(players[msg['message'][0]].position, worldChunk)
+        players[msg['message'][0]].currentChunk = chunk
+        world[chunk.x][chunk.y][msg['message'][0]] = type.player
 
         //In the future, set their starter abilities in the info send too. TODO
         newPlayerInfo = {}
@@ -119,8 +134,21 @@ function tickPlayer(player){
 function movePlayer(player){
     //Move Player
     player.velocity = newPlayerVelocity(player.direction,player.velocity)
-    player.position.x += player.velocity.x * player.movementSpeed
-    player.position.y += player.velocity.y * player.movementSpeed
+    newPosx = player.position.x + player.velocity.x * player.movementSpeed
+    newPosy = player.position.y + player.velocity.y * player.movementSpeed
+    if (newPosx < worldChunk*16 && newPosx > -worldChunk*16){
+        player.position.x = newPosx
+    }
+    if (newPosy < worldChunk*16 && newPosy > -worldChunk*16){
+        player.position.y = newPosy
+    }
+
+    var newChunk = util.getChunk(player.position, worldChunk)
+    if (player.currentChunk != newChunk){
+        delete world[player.currentChunk.x][player.currentChunk.y][player.id]
+        world[newChunk.x][newChunk.y][player.id] = type.player
+        player.currentChunk = newChunk
+    }
 }
 
 function newPlayerVelocity(direction, velocity){

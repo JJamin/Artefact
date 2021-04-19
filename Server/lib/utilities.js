@@ -29,3 +29,10 @@ exports.randomLocation = function(mapWidth, mapHeight) {
     var height = (rHeight*(mapHeight*0.90))+((1-rHeight)*(mapHeight*0.10));
     return {x: Math.floor(width), y: Math.floor(height)}
 }
+
+//Get chunk from position
+exports.getChunk = function(position, worldChunk){
+    var xChunk = Math.floor(position.x/32) + worldChunk/2
+    var yChunk = Math.floor(position.y/32) + worldChunk/2
+    return {x: xChunk, y: yChunk}
+}

@@ -99,7 +99,6 @@ function sendClientPos(){
         for (var i = 0; i < enemies.length; ++i){
             nodes.push(createNode(enemies[i], type.enemy))
         }
-        console.log(nodes)
         process.send(sendInfo(player.id, 'update-client-nodes', nodes));
     }
 }

@@ -25,7 +25,7 @@ function init() {
     const near = 0.1;
     const far = 1024;
     let unit = 8;
-    camera = new THREE.OrthographicCamera( view.width / -16, view.width / 16, view.height / 16, view.height / -16, -128, 512 );
+    camera = new THREE.OrthographicCamera( view.width / -20, view.width / 20, view.height / 20, view.height / -20, -128, 512 );
     // camera = new THREE.PerspectiveCamera(fov=10, window.innerWidth / window.innerHeight, near, far);
     camera.up.set( 0, 0, 1 )
     camera.position.z = 24;
@@ -115,7 +115,7 @@ function init() {
             mat = new THREE.SpriteMaterial( { map: tex } );
             // mat.sizeAttenuation = false
             const hat = new THREE.Sprite( mat );
-            hat.position.z = 1 + body.position.z
+            hat.position.z = 1.2 + body.position.z
             // hat.scale.x = 1/SCALE*2.0// 0.5 //tex.image.width //* PREF.scale
             // hat.scale.y = 1/SCALE*2.0//0.5 //tex.image.width //* PREF.scale
             console.log(hat.scale.y) 

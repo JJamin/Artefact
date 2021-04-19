@@ -2,8 +2,8 @@
 var util = require('./lib/utilities');
 
 //Variables
-var maxScreenWidth = 16;
-var maxScreenHeight = 16;
+var maxScreenWidth = 160;
+var maxScreenHeight = 160;
 var worldChunk = 64;
 
 var players = {}; //[PlayerID] -> Player

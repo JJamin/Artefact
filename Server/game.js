@@ -97,7 +97,7 @@ function sendClientPos(){
             }
         }));
         for (var i = 0; i < enemies.length; ++i){
-            nodes[playerID] = createNode(enemies[i], type.enemy)
+            nodes[enemies[i].id] = createNode(enemies[i], type.enemy)
         }
         process.send(sendInfo(player.id, 'update-client-nodes', nodes));
     }

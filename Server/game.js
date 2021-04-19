@@ -25,7 +25,7 @@ function createNewPlayer(playerID, playerUsername){
         username: playerUsername,
         position: util.randomLocation(0, 0),
         movementSpeed: 0.2,
-        direction: {x:0, y:0},
+        direction: {x:0, y:0, dir: 0},
         abilitiesUnlocked: [],
         activeAbilities: ["","",""],
         abilityCD: [0,0,0],
@@ -124,43 +124,51 @@ function movePlayer(player){
 }
 
 function newPlayerVelocity(direction, velocity){
-    if (direction.x == 0 && velocity.x != 0){
-        if (velocity.x < 0){
-            velocity.x += 0.08
-            if (velocity.x > 0){velocity.x = 0}
-        } else {
-            velocity.x -= 0.08
-            if (velocity.x < 0){velocity.x = 0}
-        }
-    } else {
-        velocity.x += 0.25*direction.x
-        if (velocity.x > 1){
-            velocity.x = 1
-        }
-        if (velocity.x < -1){
-            velocity.x = -1
-        }
-    }
 
-    if (direction.y == 0 && velocity.y != 0){
-        if (velocity.y < 0){
-            velocity.y += 0.08
-            if (velocity.y > 0){velocity.y = 0}
-        } else {
-            velocity.y -= 0.08
-            if (velocity.y < 0){velocity.y = 0}
-        }
-    } else {
-        velocity.y += 0.25*direction.y
-        if (velocity.y > 1){
-            velocity.y = 1
-        }
-        if (velocity.y < -1){
-            velocity.y = -1
-        }
-    }
+    // velocity.x = direction.x * Math.cos(direction.dir)
+    console.log(direction)
+    velocity.y = (direction.y * Math.cos(direction.dir)) + (direction.x * Math.sin(direction.dir))
+    velocity.x = -direction.y * Math.sin(direction.dir) + (direction.x * Math.cos(direction.dir))
 
     return velocity
+
+    // if (direction.x == 0 && velocity.x != 0){
+    //     if (velocity.x < 0){
+    //         velocity.x += 0.08
+    //         if (velocity.x > 0){velocity.x = 0}
+    //     } else {
+    //         velocity.x -= 0.08
+    //         if (velocity.x < 0){velocity.x = 0}
+    //     }
+    // } else {
+    //     velocity.x += 0.25*direction.x
+    //     if (velocity.x > 1){
+    //         velocity.x = 1
+    //     }
+    //     if (velocity.x < -1){
+    //         velocity.x = -1
+    //     }
+    // }
+
+    // if (direction.y == 0 && velocity.y != 0){
+    //     if (velocity.y < 0){
+    //         velocity.y += 0.08
+    //         if (velocity.y > 0){velocity.y = 0}
+    //     } else {
+    //         velocity.y -= 0.08
+    //         if (velocity.y < 0){velocity.y = 0}
+    //     }
+    // } else {
+    //     velocity.y += 0.25*direction.y
+    //     if (velocity.y > 1){
+    //         velocity.y = 1
+    //     }
+    //     if (velocity.y < -1){
+    //         velocity.y = -1
+    //     }
+    // }
+
+    // return velocity
 }
 
 setInterval(gameLoop, 1000 / 60);

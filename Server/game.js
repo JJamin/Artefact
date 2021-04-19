@@ -68,6 +68,7 @@ function killPlayer(playerID){
 process.on('message', (msg) => {
 
     if (msg['type'] == 'addPlayer') {
+        //TODO DEADLOCK THIS PORTION
         //msg = [playerID, playerUsername]
         players[msg['message'][0]] = createNewPlayer(msg['message'][0],msg['message'][1]);
         var chunk = util.getChunk(players[msg['message'][0]].position, worldChunk)

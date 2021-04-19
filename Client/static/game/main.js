@@ -196,6 +196,7 @@ function animateNodes() {
         node = G.nodes[nodeID]
         node.position.x += (target.x - G.nodes[nodeID].position.x ) * 0.8
         node.position.y += (target.y - G.nodes[nodeID].position.y ) * 0.8
+        node.rotation.z = target.dir
     }
 }
 function syncNodes() {

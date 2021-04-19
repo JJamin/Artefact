@@ -166,6 +166,11 @@ function newPlayerVelocity(direction, velocity){
         }
     }
 
+    var speed = Math.sqrt(velocity.y**2 + velocity.x**2)
+    if (speed > 1){
+        velocity.y /= speed
+        velocity.x /= speed
+    }
     return velocity
 }
 

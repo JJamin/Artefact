@@ -175,7 +175,8 @@ function frame() {
     T = performance.now()
 
     // Update nodes
-    for (node of model.nodes) {
+    for (let nodeID in model.nodes) {
+        node = model.nodes[nodeID]
         if (node.type == 0) {
             G.nodes.player.position.x += (node.x - G.nodes.player.position.x ) * 0.8
             G.nodes.player.position.y += (node.y - G.nodes.player.position.y ) * 0.8

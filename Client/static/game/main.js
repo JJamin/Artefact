@@ -200,8 +200,10 @@ function animateNodes() {
     }
 }
 function syncNodes() {
+    let missing = Object.keys(G.nodes)
     for (let nodeID in model.nodes) {
         node = model.nodes[nodeID]
+        // missing.remove()
         if (nodeID in G.nodes) {
             // Node exists
             // G.nodes[nodeID].position.x += (node.x - G.nodes[nodeID].position.x ) * 0.8
@@ -210,7 +212,7 @@ function syncNodes() {
         } else {
             // Create new node
             console.log("create new node")
-            G.nodes[nodeID] = CreateMesh.player()
+            G.nodes[nodeID] = CreateMesh.player(capeColor=model.player[nodeID].capeColor)
             G.nodes[nodeID].position.x = node.x
             G.nodes[nodeID].position.y = node.y
             G.scene.add(G.nodes[nodeID])

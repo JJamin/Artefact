@@ -1,9 +1,9 @@
 // Player
 var model = {
     // types: 0 = player, 1 = enemy
-    nodes: [
-        // node:[{id,type,x,y}, ...]
-    ],
+    nodes: {
+        // nodeID:{type,x,y}
+    },
     player: {
         //playerID:{username, capeColor, abilitiesUnlocked, activeAbilities, abilityCooldown}
     },

@@ -83,10 +83,10 @@ process.on('message', (msg) => {
 //What to send to the clients
 function sendClientPos(){
     for (var playerID in players){
-        var nodes = [];
+        var nodes = {};
         var player = players[playerID];
 
-        nodes.push(createNode(player, type.player))
+        nodes[playerID] = createNode(player, type.player)
         enemies = (Object.values(players).filter(function(enemy){
             if (enemy.position.x > player.position.x - maxScreenWidth/2 - 5 &&
                 enemy.position.x < player.position.x + maxScreenWidth/2 - 5 &&
@@ -97,9 +97,8 @@ function sendClientPos(){
             }
         }));
         for (var i = 0; i < enemies.length; ++i){
-            nodes.push(createNode(enemies[i], type.enemy))
+            nodes[playerID] = createNode(enemies[i], type.enemy)
         }
-        console.log(nodes)
         process.send(sendInfo(player.id, 'update-client-nodes', nodes));
     }
 }

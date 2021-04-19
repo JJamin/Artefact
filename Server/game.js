@@ -24,7 +24,7 @@ function createNewPlayer(playerID, playerUsername){
         id: playerID,
         username: playerUsername,
         position: util.randomLocation(0, 0),
-        movementSpeed: 0.2,
+        movementSpeed: 0.3,
         direction: {x:0, y:0, dir: 0},
         abilitiesUnlocked: [],
         activeAbilities: ["","",""],

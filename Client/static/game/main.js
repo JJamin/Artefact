@@ -76,63 +76,27 @@ function init() {
 
     G.scene = new THREE.Scene();
     G.scene.background = new THREE.Color( 0xE3A084 );
+    G.textureLoader = new THREE.TextureLoader()
 
     // Initialize objects in scene
+    
     G.nodes = {}
-    G.nodes.player = new THREE.Group()
+    // G.nodes.player = new THREE.Group()
+    G.nodes.player = CreateMesh.player(capeColor=0x5C8BA8)
 
-    let textureLoader = new THREE.TextureLoader()
-    { // Build player
-        let mat = new THREE.MeshBasicMaterial({color: 0x44355D})
-        // let mat = new THREE.MeshPhongMaterial({color: 0x44355D})
-
-        //body
-        let body = new THREE.Mesh(new THREE.IcosahedronGeometry(0.33, 1), mat);
-        body.scale.z = 1.5
-        body.position.z = 0.5
-        G.nodes.player.add( body )
-
-        // Head
-        let head = new THREE.Mesh(new THREE.IcosahedronGeometry(0.2, 1), mat);
-        head.position.z = 0.62 + body.position.z
-        G.nodes.player.add( head )
+    // { // Build player
         
-        // Cape
-        let geo = new THREE.ConeGeometry( 0.6, 1.2, 5, 3, true, -Math.PI*0.6, Math.PI*1.2)
-        mat = new THREE.MeshBasicMaterial({color: 0x5C8BA8})
-        let cape = new THREE.Mesh(geo, mat);
-        cape.rotation.x = 1.2
-        cape.position.z = 0.05 + body.position.z
-        cape.position.y = -0.2 + body.position.y
-        cape.material.side = THREE.DoubleSide
-        G.nodes.player.add( cape )
+    //     // Shadow
+    //     mat = new THREE.MeshBasicMaterial({color: 0xC77369})
+    //     let shadow = new THREE.Mesh(new THREE.CircleGeometry( 0.7, 12 ), mat);
+    //     // head.position.z = 0.62 + body.position.z
+    //     G.nodes.player.add( shadow )
 
-        // Hat
-        textureLoader.load('/static/img/hat.png',(tex)=>{
-            console.log(tex.image.width)
-            tex.magFilter = THREE.NearestFilter;
-            tex.minFilter = THREE.NearestFilter;
-            mat = new THREE.SpriteMaterial( { map: tex } );
-            // mat.sizeAttenuation = false
-            const hat = new THREE.Sprite( mat );
-            hat.position.z = 1.2 + body.position.z
-            // hat.scale.x = 1/SCALE*2.0// 0.5 //tex.image.width //* PREF.scale
-            // hat.scale.y = 1/SCALE*2.0//0.5 //tex.image.width //* PREF.scale
-            G.nodes.hat = hat
-            G.nodes.player.add( hat )
-        });
-
-        // Shadow
-        mat = new THREE.MeshBasicMaterial({color: 0xC77369})
-        let shadow = new THREE.Mesh(new THREE.CircleGeometry( 0.7, 12 ), mat);
-        // head.position.z = 0.62 + body.position.z
-        G.nodes.player.add( shadow )
-
-    }
+    // }
     G.scene.add(G.nodes.player);
 
     { // Random rocks
-        const tex = new textureLoader.load('/static/img/rock.png');  
+        const tex = G.textureLoader.load('/static/img/rock.png');  
         tex.magFilter = THREE.NearestFilter;
         tex.minFilter = THREE.NearestFilter;
         const mat = new THREE.SpriteMaterial( { map: tex } );
@@ -150,6 +114,7 @@ function init() {
     var grid = new THREE.GridHelper(32, 32, colorCenterLine=0xDCDAC9, colorGrid=0xE7AD8B);
     G.grid = grid
     grid.rotation.x = Math.PI/2
+    grid.position.z = -0.01
     G.scene.add(grid);
 
 
@@ -163,7 +128,7 @@ function init() {
     run = true
     frame()
 
-    startGame()
+    connect()
 
 }
 var viewVector = new THREE.Vector3( 0, 1, 0 );
@@ -175,13 +140,7 @@ function frame() {
     T = performance.now()
 
     // Update nodes
-    for (let nodeID in model.nodes) {
-        node = model.nodes[nodeID]
-        if (node.type == 0) {
-            G.nodes.player.position.x += (node.x - G.nodes.player.position.x ) * 0.8
-            G.nodes.player.position.y += (node.y - G.nodes.player.position.y ) * 0.8
-        }
-    }
+    syncNodes()
 
     // Cursor direction
     dir = -Math.atan(controls.mx/controls.my)
@@ -210,6 +169,15 @@ function frame() {
 
     if (run) requestAnimationFrame(frame)
 
+}
+function syncNodes() {
+    for (let nodeID in model.nodes) {
+        node = model.nodes[nodeID]
+        if (node.type == 0) {
+            G.nodes.player.position.x += (node.x - G.nodes.player.position.x ) * 0.8
+            G.nodes.player.position.y += (node.y - G.nodes.player.position.y ) * 0.8
+        }
+    }
 }
 function renderScene() {
     // Render small scale scene

@@ -15,25 +15,9 @@ var model = {
     }
 }
 
-// -- Animation Frame --
-window.requestAnimFrame = (function() {
-    return  window.requestAnimationFrame       ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame    ||
-            window.msRequestAnimationFrame     ||
-            function( callback ) {
-                window.setTimeout(callback, 1000 / 60);
-            };
-})();
-
 // -- Variables --
 var socket;
 var loopHandler;
-
-// -- Buttons --
-function publicClicked(){
-    startGame();
-}
 
 function SendDataToServer(){
     var data = {
@@ -45,12 +29,10 @@ function SendDataToServer(){
 }
 
 // ---- Server ----
-function startGame(){
-    console.log("GAME SHOULD HAVE STARTED")
+function connect(){
     socket = io.connect('http://localhost:8000');
     socketConnections(socket);
-    //socket.emit('joinGame', player.username);//TODO####
-    socket.emit('joinGame', "Test Guy");
+    socket.emit('joinGame', "Player");
 }
 
 function socketConnections(socket) {

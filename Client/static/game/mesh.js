@@ -42,8 +42,9 @@ const CreateMesh = {
 
         // Gun
         mat = new THREE.MeshBasicMaterial({color: 0xB8B4B2 })
-        let gun = new THREE.Mesh(new THREE.CylinderGeometry( 0.2, 0.2, 0.9, 3 ), mat);
+        let gun = new THREE.Mesh(new THREE.CylinderGeometry( 0.15, 0.15, 0.9, 3 ), mat);
         gun.position.x = 0.35
+        // gun.position.y = 0.35
         gun.position.z = -0.1 + body.position.z
         group.add( gun )
 

@@ -44,6 +44,7 @@ function socketConnections(socket) {
     // });
 
     socket.on('update-client-nodes', function (updatedNodes) {
+        model.nodes = {}
         model.nodes = updatedNodes
         syncNodes()
         // console.log(model.nodes)

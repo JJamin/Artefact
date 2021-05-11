@@ -82,8 +82,8 @@ io.on('connection', (socket) => {
     socket.on('disconnect', function () {
         console.log('Player ' + player.username + ' Disconnected');
         if (sockets[player.id]){
-            delete sockets[player.id];
             removeFromLobby(player.id, player.lobbyID)
+            delete sockets[player.id];
         }
     });
 });

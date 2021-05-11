@@ -8,7 +8,7 @@ const CreateMesh = {
         //body
         let body = new THREE.Mesh(new THREE.IcosahedronGeometry(0.33, 1), mat);
         body.scale.z = 1.5
-        body.position.z = 0.5
+        body.position.z = 1.2
         group.add( body )
 
         // Head

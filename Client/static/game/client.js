@@ -23,6 +23,7 @@ function SendDataToServer(){
     var data = {
         x: controls.x,
         y: controls.y,
+        space: controls.space,
         dir: dir
     }
     socket.emit('update-server', data)

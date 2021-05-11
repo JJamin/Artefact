@@ -1,5 +1,6 @@
 const SCALE = 2
 const CHUNK_SIZE = 32
+const VIEW_WIDTH = 5 // chunks 
 const UNIT = 8
 var SOURCE = {
     img:{},
@@ -17,6 +18,17 @@ function init() {
     window.addEventListener('keydown', keyDown)
     window.addEventListener('keyup', keyUp)
     window.addEventListener('mousemove', mouseMove)
+    window.addEventListener('oncontextmenu',(e)=>{ // Prevent right-click context menu
+        e.preventDefault()
+        return false
+    })
+    window.addEventListener('mousedown', (e)=>{
+        if (e.which == 1)
+            abilityCast.add(1)
+        else if (e.which == 3)
+            abilityCast.add(2)
+            e.preventDefault()
+    })
 
     view.canvas = document.getElementById('view');
     renderer = new THREE.WebGLRenderer({canvas:view.canvas});
@@ -119,35 +131,25 @@ function init() {
         let chunk = addChunk(G.scene)
     }
 
+
+    addSprite(G.scene,`tree0a`, 0, 0)
+    addSprite(G.scene,`tree0b`, 0, -3)
+    addSprite(G.scene,`tree0b`, 0, 3)
+
+
     { // Random grass
-        for (ix = -32; ix <= 32; ix += 1) {
-            for (iy = -32; iy <= 32; iy += 1) {
+        for (ix = -8; ix <= 8; ix += 1) {
+            for (iy = -8; iy <= 8; iy += 1) {
                 
                 if (simplex3(ix*0.1, iy*0.1, 0) > 0 ) {
 
-                    let sprite = addSprite(G.scene,`grass${randInt(2)}`, ix, iy)
+                    let sprite = addSprite(G.scene,`grass${randInt(2)}`, ix*2, iy*2)
 
                 }
 
             }
         }
-        // for (var i = 0; i<256; ++i) {
-        //     const tex = G.textureLoader.load(`/static/img/grass${randInt(2)}.png`);  
-        //     tex.magFilter = THREE.NearestFilter;
-        //     tex.minFilter = THREE.NearestFilter;
-        //     const mat = new THREE.SpriteMaterial( { map: tex } );
-        //     const rock = new THREE.Sprite( mat );
-        //     // rock.rotation.x = 0.5
-        //     rock.position.x = Math.random() * 32 - 16
-        //     rock.position.x += simplex3(rock.position.x*0.2, rock.position.y*0.2, 0) * 1.0
-        //     rock.position.y = Math.random() * 32 - 16
-        //     rock.position.y += simplex3(rock.position.x*0.2, 0, -rock.position.y*0.2) * 1.0
-        //     rock.position.z = 0.5
-        //     rock.scale.x = 2.0
-        //     rock.scale.y = 2.0
-        //     // rock.scale.y = 1/SCALE*2.0//0.5 //tex.image.width //* PREF.scale
-        //     G.scene.add( rock )
-        // }
+
     }
 
     var grid = new THREE.GridHelper(32, 32, colorCenterLine=0xDCDAC9, colorGrid=0xE7AD8B);
@@ -224,6 +226,19 @@ function frame() {
         SendDataToServer()
     }
 
+    if (abilityCast.size > 0) {
+        for (ability of abilityCast) {
+            switch (ability) {
+                case 1: socket.emit('update-server-ability1',{}); break;
+                case 2: socket.emit('update-server-ability2',{}); break;
+                case 3: socket.emit('update-server-ability3',{}); break;
+                default: break;
+            }
+            console.log("cast "+ability)
+        }
+        abilityCast.clear()
+    }
+
     // Draw scene
     renderScene()
 
@@ -262,8 +277,8 @@ function addSprite(container, img, x, y) {
 
         sprite.scale.x = width/UNIT
         sprite.scale.y = height/UNIT
-        sprite.position.y = height/UNIT * 0.5
-        sprite.position.z = 0.5
+        sprite.position.z = height/UNIT * 0.5
+        // sprite.position.z = height/UNIT * 0.5
 
         node.position.set(x,y,0)
         node.add(sprite)
@@ -365,9 +380,11 @@ function downloadFiles(directory,type,names,action,callback) {
     })
 }
 var keys = {w:false,a:false,s:false,d:false}
+var abilityCast = new Set()
 var updateKey = false
 function keyDown(e) {
     switch (e.keyCode) {
+        case 32: abilityCast.add(3); break;
         case 87: updateKey = true; keys.w = true; controls.y = 1.0; break;
         case 83: updateKey = true; keys.s = true; controls.y =-1.0; break;
         case 68: updateKey = true; keys.d = true; controls.x = 1.0; break;
@@ -399,11 +416,11 @@ function Grad(x, y, z) {
 }
 
 Grad.prototype.dot2 = function(x, y) {
-return this.x*x + this.y*y;
+    return this.x*x + this.y*y;
 };
 
 Grad.prototype.dot3 = function(x, y, z) {
-return this.x*x + this.y*y + this.z*z;
+    return this.x*x + this.y*y + this.z*z;
 };
 
 var grad3 = [new Grad(1,1,0),new Grad(-1,1,0),new Grad(1,-1,0),new Grad(-1,-1,0),

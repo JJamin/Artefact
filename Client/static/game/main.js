@@ -21,7 +21,7 @@ function init() {
     view.canvas = document.getElementById('view');
     renderer = new THREE.WebGLRenderer({canvas:view.canvas});
     renderer.autoClear = false;
-    renderer.setPixelRatio(window.devicePixelRatio)
+    // renderer.setPixelRatio(window.devicePixelRatio)
 
     setScale()
 
@@ -217,14 +217,13 @@ function randInt(upperBound) {
     return Math.round(Math.random()*upperBound)
 }
 function syncNodes() {
-    let missing = new Set(Object.keys(G.nodes))
+    // console.log("SYNC")
+    let stale = new Set(Object.keys(G.nodes))
     for (let nodeID in model.nodes) {
+        stale.delete(nodeID)
         node = model.nodes[nodeID]
-        missing.delete(nodeID)
-        // missing.remove()
         if (nodeID in G.nodes) {
             // Node already exists
-
         } else {
             // Create new node
             console.log("create new node")
@@ -236,11 +235,14 @@ function syncNodes() {
                 console.log("Player ID",nodeID)
                 G.player = G.nodes[nodeID]
             }
-
         }
     }
-    for (let nodeID in missing) {
-        console.log("Delete "+nodeID)
+    if (stale.size > 0) {
+        console.log("TRASH!")
+    }
+    for (let nodeID of stale) {
+        G.scene.remove(G.nodes[nodeID])
+        delete G.nodes[nodeID]
     }
 }
 function renderScene() {

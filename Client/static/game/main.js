@@ -114,14 +114,18 @@ function init() {
             G.scene.add( rock )
         }
     }
+
+    {
+        let chunk = addChunk(G.scene)
+    }
+
     { // Random grass
         for (ix = -16; ix <= 16; ix += 1) {
             for (iy = -16; iy <= 16; iy += 1) {
                 
                 if (simplex3(ix, iy, 0) > 0 ) {
 
-                    let sprite = createSprite(`grass${randInt(2)}`, ix, iy)
-                    G.scene.add(sprite)
+                    let sprite = addSprite(G.scene,`grass${randInt(2)}`, ix, iy)
 
                 }
 
@@ -151,6 +155,12 @@ function init() {
     grid.rotation.x = Math.PI/2
     grid.position.z = -0.01
     G.scene.add(grid);
+
+    var majorGrid = new THREE.GridHelper(64, 64, colorCenterLine=0xDCDAC9, colorGrid=0xE7AD8B);
+    majorGrid.rotation.x = Math.PI/2
+    majorGrid.position.z = -0.01
+    majorGrid.scale.set(32,32,32)
+    G.scene.add(majorGrid);
 
 
     // var sun = new THREE.DirectionalLight( 0xffffff );
@@ -188,6 +198,9 @@ function frame() {
 
     // Update nodes
     animateNodes()
+
+    G.grid.position.x = Math.round((G.player.position.x+CHUNK_SIZE*0.5)/CHUNK_SIZE)*CHUNK_SIZE - CHUNK_SIZE*0.5
+    G.grid.position.y = Math.round((G.player.position.y+CHUNK_SIZE*0.5)/CHUNK_SIZE)*CHUNK_SIZE - CHUNK_SIZE*0.5
 
     // Cursor direction
     dir = -Math.atan(controls.mx/controls.my)
@@ -231,9 +244,14 @@ function randInt(upperBound) {
     return Math.round(Math.random()*upperBound)
 }
 var textureCache = {}
-function createSprite(img, x, y) {
-    let node = new THREE.Group()
+function addChunk(container,x,y) {
+    let chunk = new THREE.Group()
+
+}
+function addSprite(container, img, x, y) {
     G.textureLoader.load(`/static/img/${img}.png`,( texture )=>{
+        let node = new THREE.Group()
+
         texture.magFilter = THREE.NearestFilter;
         texture.minFilter = THREE.NearestFilter;
         let mat = new THREE.SpriteMaterial( { map: texture } );
@@ -245,13 +263,17 @@ function createSprite(img, x, y) {
         sprite.scale.x = width/UNIT
         sprite.scale.y = height/UNIT
         sprite.position.y = height/UNIT * 0.5
+        sprite.position.z = 0.5
+
+        node.position.set(x,y,0)
         node.add(sprite)
 
-        return(node)
+        container.add(node)
 
     },undefined,function ( err ) {
 		console.error( 'ERROR loading image '+img );
     });  
+    
     
     // tex.magFilter = THREE.NearestFilter;
     // tex.minFilter = THREE.NearestFilter;

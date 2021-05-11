@@ -118,7 +118,7 @@ function sendClientPos(){
                 }
             }
         }
-        console.log(nodes)
+        // console.log(nodes)
         process.send(sendInfo(player.id, 'update-client-nodes', nodes));
     }
 }

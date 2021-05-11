@@ -1,4 +1,5 @@
 const SCALE = 2
+const CHUNK_SIZE = 32
 const UNIT = 8
 var SOURCE = {
     img:{},
@@ -20,14 +21,14 @@ function init() {
     view.canvas = document.getElementById('view');
     renderer = new THREE.WebGLRenderer({canvas:view.canvas});
     renderer.autoClear = false;
-    // renderer.setPixelRatio(window.devicePixelRatio)
+    renderer.setPixelRatio(window.devicePixelRatio)
 
     setScale()
 
     const near = 0.1;
     const far = 1024;
     let unit = 8;
-    camera = new THREE.OrthographicCamera( view.width / -16, view.width / 16, view.height / 16, view.height / -16, -128, 512 );
+    camera = new THREE.OrthographicCamera( view.width / -16, view.width / 16, view.height / 16, view.height / -16, 0, 256 );
     // camera = new THREE.PerspectiveCamera(fov=10, window.innerWidth / window.innerHeight, near, far);
     camera.up.set( 0, 0, 1 )
     camera.position.z = 24;
@@ -98,27 +99,44 @@ function init() {
     // G.scene.add(G.nodes.player);
 
     { // Random rocks
-        const tex = G.textureLoader.load('/static/img/rock.png');  
-        tex.magFilter = THREE.NearestFilter;
-        tex.minFilter = THREE.NearestFilter;
-        const mat = new THREE.SpriteMaterial( { map: tex } );
         for (var i = 0; i<32; ++i) {
+            const tex = G.textureLoader.load(`/static/img/rock${randInt(1)}.png`);  
+            tex.magFilter = THREE.NearestFilter;
+            tex.minFilter = THREE.NearestFilter;
+            const mat = new THREE.SpriteMaterial( { map: tex } );
             const rock = new THREE.Sprite( mat );
             // rock.rotation.x = 0.5
-            rock.position.x = Math.random() * 128 - 64
-            rock.position.y = Math.random() * 128 - 64
+            rock.position.x = Math.random() * 32*3 - 16*3
+            rock.position.y = Math.random() * 32*3 - 16*3
             rock.position.z = 0.5
-            // rock.scale.x = 1/SCALE*2.0// 0.5 //tex.image.width //* PREF.scale
+            rock.scale.x = 2.0 // 1/SCALE*2.0// 0.5 //tex.image.width //* PREF.scale
+            // rock.scale.y = 1/SCALE*2.0//0.5 //tex.image.width //* PREF.scale
+            G.scene.add( rock )
+        }
+    }
+    { // Random grass
+        for (var i = 0; i<32; ++i) {
+            const tex = G.textureLoader.load(`/static/img/grass${randInt(2)}.png`);  
+            tex.magFilter = THREE.NearestFilter;
+            tex.minFilter = THREE.NearestFilter;
+            const mat = new THREE.SpriteMaterial( { map: tex } );
+            const rock = new THREE.Sprite( mat );
+            // rock.rotation.x = 0.5
+            rock.position.x = Math.random() * 32*3 - 16*3
+            rock.position.y = Math.random() * 32*3 - 16*3
+            rock.position.z = 0.5
+            rock.scale.x = 2.0
+            rock.scale.y = 2.0
             // rock.scale.y = 1/SCALE*2.0//0.5 //tex.image.width //* PREF.scale
             G.scene.add( rock )
         }
     }
 
-    var grid = new THREE.GridHelper(32, 32, colorCenterLine=0xDCDAC9, colorGrid=0xE7AD8B);
-    G.grid = grid
-    grid.rotation.x = Math.PI/2
-    grid.position.z = -0.01
-    G.scene.add(grid);
+    // var grid = new THREE.GridHelper(32, 32, colorCenterLine=0xDCDAC9, colorGrid=0xE7AD8B);
+    // G.grid = grid
+    // grid.rotation.x = Math.PI/2
+    // grid.position.z = -0.01
+    // G.scene.add(grid);
 
 
     // var sun = new THREE.DirectionalLight( 0xffffff );
@@ -135,17 +153,12 @@ function init() {
 
     // Wait for sufficient world information
     let findPlayer = ()=>{
-        if ("player" in G.nodes) {
+        if ("player" in G) {
             run = true
             frame()
         } else {
             setTimeout(findPlayer, 100)
         }
-
-        // G.player = 
-        // run = true
-        // frame()
-        
     }
 
     findPlayer()
@@ -173,11 +186,11 @@ function frame() {
     viewVector.set(0,1,0)
     viewVector.applyAxisAngle( xAxis, controls.my*0.12 - 0.62 );
     viewVector.applyAxisAngle( zAxis, controls.mx*0.24 );
-    let camPos = G.nodes.player.position.clone()
+    let camPos = G.player.position.clone()
     viewVector.multiplyScalar(128.0)
     camPos.sub(viewVector)
     camera.position.set( camPos.x, camPos.y, camPos.z)
-    camera.lookAt(G.nodes.player.position)
+    camera.lookAt(G.player.position)
 
     // Notify server of key updates
     if (updateKey) {
@@ -199,15 +212,18 @@ function animateNodes() {
         node.rotation.z = target.dir
     }
 }
+// Returns random integer from 0 to upperBound inclusive
+function randInt(upperBound) {
+    return Math.round(Math.random()*upperBound)
+}
 function syncNodes() {
-    let missing = Object.keys(G.nodes)
+    let missing = new Set(Object.keys(G.nodes))
     for (let nodeID in model.nodes) {
         node = model.nodes[nodeID]
+        missing.delete(nodeID)
         // missing.remove()
         if (nodeID in G.nodes) {
-            // Node exists
-            // G.nodes[nodeID].position.x += (node.x - G.nodes[nodeID].position.x ) * 0.8
-            // G.nodes[nodeID].position.y += (node.y - G.nodes[nodeID].position.y ) * 0.8
+            // Node already exists
 
         } else {
             // Create new node
@@ -217,10 +233,14 @@ function syncNodes() {
             G.nodes[nodeID].position.y = node.y
             G.scene.add(G.nodes[nodeID])
             if (node.type == 0) {
-                G.nodes.player = G.nodes[nodeID]
+                console.log("Player ID",nodeID)
+                G.player = G.nodes[nodeID]
             }
 
         }
+    }
+    for (let nodeID in missing) {
+        console.log("Delete "+nodeID)
     }
 }
 function renderScene() {

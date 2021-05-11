@@ -120,10 +120,10 @@ function init() {
     }
 
     { // Random grass
-        for (ix = -16; ix <= 16; ix += 1) {
-            for (iy = -16; iy <= 16; iy += 1) {
+        for (ix = -32; ix <= 32; ix += 1) {
+            for (iy = -32; iy <= 32; iy += 1) {
                 
-                if (simplex3(ix, iy, 0) > 0 ) {
+                if (simplex3(ix*0.1, iy*0.1, 0) > 0 ) {
 
                     let sprite = addSprite(G.scene,`grass${randInt(2)}`, ix, iy)
 

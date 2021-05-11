@@ -62,6 +62,7 @@ function createNode(node, type){
 function killPlayer(playerID){
     //add drops and what not TODO
     //TODO DEADLOCK
+    delete world[players[playerID].currentChunk.y][players[playerID].currentChunk.x][playerID]
     delete players[playerID];
 }
 

@@ -212,7 +212,7 @@ function syncNodes() {
         } else {
             // Create new node
             console.log("create new node")
-            G.nodes[nodeID] = CreateMesh.player(capeColor=model.player[nodeID].capeColor)
+            G.nodes[nodeID] = CreateMesh.player()
             G.nodes[nodeID].position.x = node.x
             G.nodes[nodeID].position.y = node.y
             G.scene.add(G.nodes[nodeID])

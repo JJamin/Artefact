@@ -61,6 +61,7 @@ function createNode(node, type){
 
 function killPlayer(playerID){
     //add drops and what not TODO
+    //TODO DEADLOCK
     delete players[playerID];
 }
 
@@ -82,8 +83,9 @@ process.on('message', (msg) => {
                                                      abilitiesUnlocked: [],
                                                      activeAbilities: ["","",""],
                                                      abilityCD: [0,0,0]
-                                                    }
+                                            }
         process.send(sendInfo(msg['message'][0], 'update-client-playerInfo', newPlayerInfo));
+        //TODO DEADLOCK THIS PORTION
     }
 
     if (msg['type'] == 'removePlayer') {
@@ -93,6 +95,7 @@ process.on('message', (msg) => {
     
     if (msg['type'] == 'update-server') {
         //msg = {direction: {string}}
+        //TODO DEADLOCK
         players[msg['playerID']].direction = msg['message'];
     }
 });
@@ -118,6 +121,7 @@ function sendClientPos(){
         }
         process.send(sendInfo(player.id, 'update-client-nodes', nodes));
     }
+    console.log(player.currentChunk)
 }
 
 //Game Functions 
@@ -154,11 +158,6 @@ function movePlayer(player){
 }
 
 function newPlayerVelocity(direction, velocity){
-
-    // velocity.x = direction.x * Math.cos(direction.dir)
-    // console.log(direction)
-    // velocity.y = (direction.y * Math.cos(direction.dir)) + (direction.x * Math.sin(direction.dir))
-    // velocity.x = -direction.y * Math.sin(direction.dir) + (direction.x * Math.cos(direction.dir))
 
     if (direction.x == 0 && velocity.x != 0){
         if (velocity.x < 0){

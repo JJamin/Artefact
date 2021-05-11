@@ -50,9 +50,13 @@ function socketConnections(socket) {
     });
 
     socket.on('update-client-playerInfo', function (updatedPlayer) {
-        console.log("HELLO")
-        console.log(model.player)
-        model.player = updatedPlayer
+        for (var player in updatedPlayer){
+            console.log(model.player)
+            console.log(player)
+            if (!(player in model.player)){
+                model.player[player] = updatedPlayer[player]
+            }
+        }
     });
 
     // -- Handle error --

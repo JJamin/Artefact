@@ -103,7 +103,6 @@ function startLobby(){
         if (msg['type'] == 'update-client-playerInfo') {
             if (msg['playerID'] in sockets){
                 sockets[msg['playerID']].emit('update-client-playerInfo', msg['message'])
-                console.log(msg['message'])
             }
         }
     });

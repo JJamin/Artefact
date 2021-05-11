@@ -74,7 +74,7 @@ process.on('message', (msg) => {
         players[msg['message'][0]] = createNewPlayer(msg['message'][0],msg['message'][1]);
         var chunk = util.getChunk(players[msg['message'][0]].position, worldChunk)
         players[msg['message'][0]].currentChunk = chunk
-        world[chunk.x][chunk.y][msg['message'][0]] = [type.player, players[msg['message'][0]]]
+        world[chunk.y][chunk.x][msg['message'][0]] = [type.player, players[msg['message'][0]]]
 
         //In the future, set their starter abilities in the info send too. TODO
         newPlayerInfo = {}
@@ -107,23 +107,23 @@ function sendClientPos(){
         var player = players[playerID];
 
         nodes[playerID] = createNode(player, type.player)
-
-        for (let y = player.currentChunk.y-1; y <= player.currentChunk.y+1; ++y){
+        for (let y = player.currentChunk.y-2; y <= player.currentChunk.y+2; ++y){
             if (y < 0 || y >=64){continue}
-            for (let x = player.currentChunk.x-1; x <= player.currentChunk.x+1; ++x){
+            for (let x = player.currentChunk.x-2; x <= player.currentChunk.x+2; ++x){
                 if (x < 0 || x >= 64){continue}
                 for (let id in world[y][x]){
                     if (id == playerID){ continue }
-                    nodes[id] = createNode(world[y][x][id][1], type.enemy)
+                    if (world[y][x][id][0] == type.player){
+                        nodes[id] = createNode(world[y][x][id][1], type.enemy)
+                    }
                 }
             }
         }
-        console.log(nodes)
         process.send(sendInfo(player.id, 'update-client-nodes', nodes));
     }
 }
 
-//Game Functions 
+//Game Functions dw
 function gameLoop(){
     for (var playerID in players){
         var player = players[playerID];
@@ -150,8 +150,8 @@ function movePlayer(player){
 
     var newChunk = util.getChunk(player.position, worldChunk)
     if (player.currentChunk != newChunk){
-        delete world[player.currentChunk.x][player.currentChunk.y][player.id]
-        world[newChunk.x][newChunk.y][player.id] = [type.player, player]
+        delete world[player.currentChunk.y][player.currentChunk.x][player.id]
+        world[newChunk.y][newChunk.x][player.id] = [type.player, player]
         player.currentChunk = newChunk
     }
 }

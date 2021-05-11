@@ -119,10 +119,7 @@ function sendClientPos(){
                 }
             }
         }
-<<<<<<< HEAD
         // console.log(nodes)
-=======
->>>>>>> 8deac2bcaf5db4b9f428f333bbf1b74871f6e9b6
         process.send(sendInfo(player.id, 'update-client-nodes', nodes));
     }
 }

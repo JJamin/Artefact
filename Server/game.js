@@ -1,5 +1,6 @@
 //Import
 var util = require('./lib/utilities');
+var sh = require('./helper');
 
 //Variables
 var maxScreenWidth = 160;
@@ -43,7 +44,11 @@ function createNewPlayer(playerID, playerUsername){
         capeColor: util.randomColor(),
         velocity: {x: 0, y: 0},
         health: 100,
-        currentChunk: {x:0, y:0}
+        currentChunk: {x:0, y:0},
+        runningAbilities: [],
+        hidden: false,
+        invulnerable: false,
+        moveable: true
     };
     return player
 }
@@ -54,7 +59,8 @@ function createNode(node, type){
         type: type,
         x: node.position.x,
         y: node.position.y,
-        dir: node.direction.dir
+        dir: node.direction.dir,
+        hidden: node.hidden
     };
     return newNode
 }
@@ -64,6 +70,33 @@ function killPlayer(playerID){
     //TODO DEADLOCK
     delete world[players[playerID].currentChunk.y][players[playerID].currentChunk.x][playerID]
     delete players[playerID];
+}
+
+function dashPlayer(player, dir, dist, time, hidden, invulnerable, clearFunc){
+    player.moveable = false
+    player.hidden = hidden
+    player.invulnerable = invulnerable
+
+    if (time == 0){
+        player.position.x += -(dist*Math.sin(dir.dir))
+        player.position.y += (dist*Math.cos(dir.dir))
+
+        player.runningAbilities.push([0, clearFunc])
+    } else {
+        player.velocity.x = -(dist*Math.sin(dir.dir))/(60*time)
+        player.velocity.y = (dist*Math.cos(dir.dir))/(60*time)
+
+        player.runningAbilities.push([(time*60)-1, clearFunc])
+    }
+}
+
+function clearPlayer(player){
+    player.moveable = true
+    player.hidden = false
+    player.invulnerable = false
+
+    player.velocity.x = 0
+    player.velocity.y = 0
 }
 
 //Get Recieve messages sent from the Main Server
@@ -98,6 +131,19 @@ process.on('message', (msg) => {
         //msg = {direction: {string}}
         //TODO DEADLOCK
         players[msg['playerID']].direction = msg['message'];
+    }
+
+    if (msg['type'] == 'update-server-ability1') {
+        //TODO
+    }
+
+    if (msg['type'] == 'update-server-ability2') {
+        //TODO
+    }
+
+    if (msg['type'] == 'update-server-ability3') {
+        player = players[msg['playerID']]
+        dashPlayer(player, player.direction, 16, 0.15, true, true, clearPlayer)
     }
 });
 
@@ -134,19 +180,50 @@ function gameLoop(){
 
 //Update players cooldowns and movements
 function tickPlayer(player){
+
+    //Moves player
     movePlayer(player)
+
+    //Checks if running abilities are done
+    if (player.runningAbilities.length != 0){
+        var i = 0
+        while (i < player.runningAbilities.length){
+            if (player.runningAbilities[i][0] <= 0){
+
+                player.runningAbilities[i][1](player)
+                player.runningAbilities.splice(i, 1)
+            } else {
+                player.runningAbilities[i][0] -= 1;
+                ++i;
+            }
+        }
+    }
+
 }
 
 function movePlayer(player){
     //Move Player
-    player.velocity = newPlayerVelocity(player.direction,player.velocity)
-    newPosx = player.position.x + player.velocity.x * player.movementSpeed
-    newPosy = player.position.y + player.velocity.y * player.movementSpeed
-    if (newPosx < worldChunk*16 && newPosx > -worldChunk*16){
-        player.position.x = newPosx
-    }
-    if (newPosy < worldChunk*16 && newPosy > -worldChunk*16){
-        player.position.y = newPosy
+
+    if (player.moveable){
+        player.velocity = newPlayerVelocity(player.direction,player.velocity)
+        newPosx = player.position.x + player.velocity.x * player.movementSpeed
+        newPosy = player.position.y + player.velocity.y * player.movementSpeed
+        if (newPosx < worldChunk*16 && newPosx > -worldChunk*16){
+            player.position.x = newPosx
+        }
+        if (newPosy < worldChunk*16 && newPosy > -worldChunk*16){
+            player.position.y = newPosy
+        }
+
+    } else {
+        newPosx = player.position.x + player.velocity.x
+        newPosy = player.position.y + player.velocity.y
+        if (newPosx < worldChunk*16 && newPosx > -worldChunk*16){
+            player.position.x = newPosx
+        }
+        if (newPosy < worldChunk*16 && newPosy > -worldChunk*16){
+            player.position.y = newPosy
+        }
     }
 
     var newChunk = util.getChunk(player.position, worldChunk)

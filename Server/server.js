@@ -72,6 +72,21 @@ io.on('connection', (socket) => {
         lobbies[player.lobbyID]['lobby'].send(sendInfo(player.id, 'update-server', msg));
     });
 
+    //update player to run ability 1
+    socket.on('update-server-ability1', function() {
+        lobbies[player.lobbyID]['lobby'].send(sendInfo(player.id, 'update-server-ability1', ''));
+    });
+
+    //update player to run ability 2
+    socket.on('update-server-ability2', function() {
+        lobbies[player.lobbyID]['lobby'].send(sendInfo(player.id, 'update-server-ability2', ''));
+    });
+
+    //update player to run ability 3
+    socket.on('update-server-ability3', function() {
+        lobbies[player.lobbyID]['lobby'].send(sendInfo(player.id, 'update-server-ability3', ''));
+    });
+
     //--Test-- send anything to the server and print it out
     socket.on('test', function(test) {
         console.log(test);

@@ -22,9 +22,28 @@ const skillTree = {
 
 const st = {
     class:{
-
+        "Cowboy":{
+            ability1: "b",
+            ability2: "a",
+            ability3: "c"
+        },
+        "Wizard":{
+            ability1: "f",
+            ability2: "h",
+            ability3: "g"
+        },
+        "Brute":{
+            ability1: "l",
+            ability2: "k",
+            ability3: "m"
+        }
     },
-    abilities:{
 
+    skill:{
+        "g":{
+            health: 1,
+            speed: 1,
+            cooldown: 3
+        }
     }
 }

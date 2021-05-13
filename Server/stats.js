@@ -48,7 +48,7 @@ exports.st = {
             },
             "run": function (player){
                 clearFunction = clearPlayer
-                dashPlayer(player, player.direction, 16, 0.1, true, true, clearFunction)
+                dashPlayer(player, player.direction, 12, 0.1, true, true, clearFunction)
             }
         }
     }

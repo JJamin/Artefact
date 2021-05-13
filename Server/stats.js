@@ -20,8 +20,8 @@ const skillTree = {
     "s":new Set(["q","c"]),
 }
 
-const st = {
-    class:{
+exports.st = {
+    "class":{
         "Cowboy":{
             ability1: "b",
             ability2: "a",
@@ -39,11 +39,44 @@ const st = {
         }
     },
 
-    skill:{
+    "skill":{
         "g":{
-            health: 1,
-            speed: 1,
-            cooldown: 3
+            "stats":{
+                health: 1,
+                speed: 1,
+                cooldown: 3
+            },
+            "run": function (player){
+                clearFunction = clearPlayer
+                dashPlayer(player, player.direction, 16, 0.1, true, true, clearFunction)
+            }
         }
     }
+}
+
+function dashPlayer(player, dir, dist, time, hidden, invulnerable, clearFunc){
+    player.moveable = false
+    player.hidden = hidden
+    player.invulnerable = invulnerable
+
+    if (time == 0){
+        player.position.x += -(dist*Math.sin(dir.dir))
+        player.position.y += (dist*Math.cos(dir.dir))
+
+        player.runningAbilities.push([0, clearFunc])
+    } else {
+        player.velocity.x = -(dist*Math.sin(dir.dir))/(60*time)
+        player.velocity.y = (dist*Math.cos(dir.dir))/(60*time)
+
+        player.runningAbilities.push([(time*60)-1, clearFunc])
+    }
+}
+
+function clearPlayer(player){
+    player.moveable = true
+    player.hidden = false
+    player.invulnerable = false
+
+    player.velocity.x = 0
+    player.velocity.y = 0
 }

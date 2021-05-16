@@ -1,6 +1,6 @@
 //Import
 var util = require('./lib/utilities');
-var sh = require('./helper');
+// var sh = require('./helper');
 
 //Variables
 var maxScreenWidth = 160;

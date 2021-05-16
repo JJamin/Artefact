@@ -1,6 +1,7 @@
-const SCALE = 2
+var SCALE = 1
 const CHUNK_SIZE = 32
-const VIEW_WIDTH = 5 // chunks 
+const MAP_SIZE = 64
+const VIEW_WIDTH = 3 // chunks 
 const UNIT = 8
 var SOURCE = {
     img:{},
@@ -11,14 +12,17 @@ var camera, renderer, controls
 var rtTexture, upscaleCamera, upscaleScene
 var G = {}
 const view = {}
+// UP = ( X: 0, Y: 0, Z: 1 ) // Z+ is up
 const xAxis = new THREE.Vector3( 1, 0, 0 );
 const yAxis = new THREE.Vector3( 0, 1, 0 );
 const zAxis = new THREE.Vector3( 0, 0, 1 );
 function init() {
+    view.canvas = document.getElementById('view');
+
     window.addEventListener('keydown', keyDown)
     window.addEventListener('keyup', keyUp)
     window.addEventListener('mousemove', mouseMove)
-    window.addEventListener('oncontextmenu',(e)=>{ // Prevent right-click context menu
+    view.canvas.addEventListener('contextmenu',(e)=>{ // Prevent right-click context menu
         e.preventDefault()
         return false
     })
@@ -27,13 +31,13 @@ function init() {
             abilityCast.add(1)
         else if (e.which == 3)
             abilityCast.add(2)
-            e.preventDefault()
+            
     })
 
-    view.canvas = document.getElementById('view');
     renderer = new THREE.WebGLRenderer({canvas:view.canvas});
     renderer.autoClear = false;
     // renderer.setPixelRatio(window.devicePixelRatio)
+    renderer.setPixelRatio(1)
 
     setScale()
 
@@ -71,13 +75,14 @@ function init() {
     const upscaleFragShader = `
     varying vec2 vUv;
     uniform sampler2D tDiffuse;
+    uniform vec2 pixelOffset;
     void main() {
-        gl_FragColor = texture2D( tDiffuse, vUv );
+        gl_FragColor = texture2D( tDiffuse, vUv+pixelOffset );
 
     }`
     let materialScreen = new THREE.ShaderMaterial( {
 
-        uniforms: { tDiffuse: { value: rtTexture.texture } },
+        uniforms: { tDiffuse: { value: rtTexture.texture }, pixelOffset: { value: pixelOffset } },
         vertexShader: upscaleVertexShader,
         fragmentShader: upscaleFragShader,
         depthWrite: false
@@ -127,19 +132,17 @@ function init() {
         }
     }
 
-    {
-        let chunk = addChunk(G.scene)
-    }
+    let chunk = addChunk(G.scene, 31, 31)
 
 
-    addSprite(G.scene,`tree0a`, 0, 0)
-    addSprite(G.scene,`tree0b`, 0, -3)
-    addSprite(G.scene,`tree0b`, 0, 3)
+    addSprite(G.scene,`tree0a`, 16, 16 + 0)
+    addSprite(G.scene,`tree0b`, 16, 16 + -3)
+    addSprite(G.scene,`tree0b`, 16, 16 + 3)
 
 
     { // Random grass
-        for (ix = -8; ix <= 8; ix += 1) {
-            for (iy = -8; iy <= 8; iy += 1) {
+        for (ix = -16; ix <= 16; ix += 1) {
+            for (iy = -16; iy <= 16; iy += 1) {
                 
                 if (simplex3(ix*0.1, iy*0.1, 0) > 0 ) {
 
@@ -189,12 +192,15 @@ function init() {
 
     findPlayer()
 
+    console.log(chunksInView())
+
 }
 var viewVector = new THREE.Vector3( 0, 1, 0 );
 
 var T = 0
 var dir = 0
 // const RAD = Math.PI / 2;
+const pixelOffset = new THREE.Vector2( 0, 0 );
 function frame() {
     T = performance.now()
 
@@ -221,11 +227,17 @@ function frame() {
     camera.position.set( camPos.x, camPos.y, camPos.z)
     camera.lookAt(G.player.position)
 
+
+    const viewScaleX = 1/(VIEW_WIDTH * CHUNK_SIZE * UNIT)
+    // pixelOffset.set( viewScaleX * (G.player.position.x + Math.trunc(G.player.position.x)) ,
+    //                  viewScaleX * (G.player.position.y + Math.trunc(G.player.position.y)) )
+
     // Notify server of key updates
     if (updateKey) {
         SendDataToServer()
     }
 
+    // Notify server of ability cast attempts
     if (abilityCast.size > 0) {
         for (ability of abilityCast) {
             switch (ability) {
@@ -234,7 +246,6 @@ function frame() {
                 case 3: socket.emit('update-server-ability3',{}); break;
                 default: break;
             }
-            console.log("cast "+ability)
         }
         abilityCast.clear()
     }
@@ -262,6 +273,23 @@ var textureCache = {}
 function addChunk(container,x,y) {
     let chunk = new THREE.Group()
 
+    chunk.position = 
+
+    container.add(chunk)
+    return chunk
+}
+// Returns a set of coordinate tuples (x,y) of the chunks that are potentiall visible
+function chunksInView() {
+    // 0,0 is the coordinate middle of the map
+    let visible = new Set()
+    let topLeft = (-2,-2)
+    let botRight = (2,2)
+    for (let ix = topLeft[0]; ix <= botRight[0]; ix+= 1) {
+        for (let iy = topLeft[1]; ix <= botRight[1]; iy+= 1) {
+            visible.add( (ix,iy) )
+        }
+    }
+    return visible
 }
 function addSprite(container, img, x, y) {
     G.textureLoader.load(`/static/img/${img}.png`,( texture )=>{
@@ -275,8 +303,8 @@ function addSprite(container, img, x, y) {
         const width = texture.image.width
         const height = texture.image.height
 
-        sprite.scale.x = width/UNIT
-        sprite.scale.y = height/UNIT
+        sprite.scale.x = width / UNIT
+        sprite.scale.y = height / UNIT
         sprite.position.z = height/UNIT * 0.5
         // sprite.position.z = height/UNIT * 0.5
 
@@ -315,20 +343,16 @@ function syncNodes() {
             // Node already exists
         } else {
             // Create new node
-            console.log("create new node")
             G.nodes[nodeID] = CreateMesh.player()
             G.nodes[nodeID].position.x = node.x
             G.nodes[nodeID].position.y = node.y
             G.scene.add(G.nodes[nodeID])
             if (node.type == 0) {
-                console.log("Player ID",nodeID)
                 G.player = G.nodes[nodeID]
             }
         }
     }
-    if (stale.size > 0) {
-        console.log("TRASH!")
-    }
+
     for (let nodeID of stale) {
         G.scene.remove(G.nodes[nodeID])
         delete G.nodes[nodeID]
@@ -345,6 +369,8 @@ function renderScene() {
     renderer.render( upscaleScene, upscaleCamera );
 }
 function setScale() {
+    SCALE = window.innerWidth / (VIEW_WIDTH*CHUNK_SIZE*UNIT)
+    console.log("SCALE = "+SCALE)
     view.zoom = 1.0
     view.viewWidth = window.innerWidth//*window.devicePixelRatio
     view.viewHeight = window.innerHeight//*window.devicePixelRatio

@@ -1,6 +1,6 @@
 //Import
 var util = require('./lib/utilities');
-// var sh = require('./helper');
+var s = require('./stats');
 
 //Variables
 var maxScreenWidth = 160;
@@ -72,33 +72,6 @@ function killPlayer(playerID){
     delete players[playerID];
 }
 
-function dashPlayer(player, dir, dist, time, hidden, invulnerable, clearFunc){
-    player.moveable = false
-    player.hidden = hidden
-    player.invulnerable = invulnerable
-
-    if (time == 0){
-        player.position.x += -(dist*Math.sin(dir.dir))
-        player.position.y += (dist*Math.cos(dir.dir))
-
-        player.runningAbilities.push([0, clearFunc])
-    } else {
-        player.velocity.x = -(dist*Math.sin(dir.dir))/(60*time)
-        player.velocity.y = (dist*Math.cos(dir.dir))/(60*time)
-
-        player.runningAbilities.push([(time*60)-1, clearFunc])
-    }
-}
-
-function clearPlayer(player){
-    player.moveable = true
-    player.hidden = false
-    player.invulnerable = false
-
-    player.velocity.x = 0
-    player.velocity.y = 0
-}
-
 //Get Recieve messages sent from the Main Server
 process.on('message', (msg) => {
 
@@ -143,7 +116,7 @@ process.on('message', (msg) => {
 
     if (msg['type'] == 'update-server-ability3') {
         player = players[msg['playerID']]
-        dashPlayer(player, player.direction, 16, 0.15, true, true, clearPlayer)
+        s.st["skill"]["g"]["run"](player)
     }
 });
 

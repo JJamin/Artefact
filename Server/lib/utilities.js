@@ -13,6 +13,12 @@ exports.makeLobbyCode = function(lobbyCode) {
     return code
 };
 
+// Random ID
+exports.makeID = function() {
+    id = Math.random().toString(36).toLowerCase();
+    return id;
+};
+
 // Hash function
 exports.hash = function(s) {
     for(let i = 0, h = 0; i < s.length; i++)

@@ -1,3 +1,5 @@
+
+
 //Import
 var util = require('./lib/utilities');
 var s = require('./stats');
@@ -7,7 +9,12 @@ var maxScreenWidth = 160;
 var maxScreenHeight = 160;
 var worldChunk = 64;
 
+var tickRate = 60;
+var toClientRate = 40;
+
+
 var players = {}; //[PlayerID] -> Player
+var abilities = {}; //[AbilityID] -> ability
 var world = [];
 for(var i=0; i<worldChunk; ++i) {
     world.push([]);
@@ -107,16 +114,17 @@ process.on('message', (msg) => {
     }
 
     if (msg['type'] == 'update-server-ability1') {
-        //TODO
+        player = players[msg['playerID']]
+        s.st["skill"]["f"]["run"](player, world, abilities)
     }
 
     if (msg['type'] == 'update-server-ability2') {
-        //TODO
+        console.log(abilities)
     }
 
     if (msg['type'] == 'update-server-ability3') {
         player = players[msg['playerID']]
-        s.st["skill"]["g"]["run"](player)
+        s.st["skill"]["g"]["run"](player, world, abilities)
     }
 });
 
@@ -126,15 +134,24 @@ function sendClientPos(){
         var nodes = {};
         var player = players[playerID];
 
+        //Add player to node
         nodes[playerID] = createNode(player, type.player)
+
+        //Get the 5x5 chunk around the player
         for (let y = player.currentChunk.y-2; y <= player.currentChunk.y+2; ++y){
             if (y < 0 || y >=64){continue}
             for (let x = player.currentChunk.x-2; x <= player.currentChunk.x+2; ++x){
                 if (x < 0 || x >= 64){continue}
                 for (let id in world[y][x]){
                     if (id == playerID){ continue }
-                    if (world[y][x][id][0] == type.player){
+                    //Add enemies to the node
+                    if (world[y][x][id][0] == type.player)
+                    {
                         nodes[id] = createNode(world[y][x][id][1], type.enemy)
+                    }
+                    else if (world[y][x][id][0] == type.ability)
+                    {
+                        nodes[id] = createNode(world[y][x][id][1], type.ability)
                     }
                 }
             }
@@ -157,20 +174,8 @@ function tickPlayer(player){
     //Moves player
     movePlayer(player)
 
-    //Checks if running abilities are done
-    if (player.runningAbilities.length != 0){
-        var i = 0
-        while (i < player.runningAbilities.length){
-            if (player.runningAbilities[i][0] <= 0){
-
-                player.runningAbilities[i][1](player)
-                player.runningAbilities.splice(i, 1)
-            } else {
-                player.runningAbilities[i][0] -= 1;
-                ++i;
-            }
-        }
-    }
+    //Ticks players abilities
+    tickAbilities(player)
 
 }
 
@@ -204,6 +209,26 @@ function movePlayer(player){
         delete world[player.currentChunk.y][player.currentChunk.x][player.id]
         world[newChunk.y][newChunk.x][player.id] = [type.player, player]
         player.currentChunk = newChunk
+    }
+}
+
+function moveAbility(ability){
+    //Move ability
+
+    newPosx = ability.position.x + ability.velocity.x
+    newPosy = ability.position.y + ability.velocity.y
+    if (newPosx < worldChunk*16 && newPosx > -worldChunk*16){
+        ability.position.x = newPosx
+    }
+    if (newPosy < worldChunk*16 && newPosy > -worldChunk*16){
+        ability.position.y = newPosy
+    }
+
+    var newChunk = util.getChunk(ability.position, worldChunk)
+    if (ability.currentChunk != newChunk){
+        delete world[ability.currentChunk.y][ability.currentChunk.x][ability.id]
+        world[newChunk.y][newChunk.x][ability.id] = [type.ability, ability]
+        ability.currentChunk = newChunk
     }
 }
 
@@ -253,6 +278,27 @@ function newPlayerVelocity(direction, velocity){
     return velocity
 }
 
-setInterval(gameLoop, 1000 / 60);
-setInterval(sendClientPos, 1000 / 40);
+function tickAbilities(player){
+    //Checks if running abilities are done
+    if (player.runningAbilities.length != 0){
+
+        var i = 0
+        while (i < player.runningAbilities.length){
+
+            if (player.runningAbilities[i][0] <= 0){
+                //remove the ability
+                player.runningAbilities[i][1](player.runningAbilities[i][2])
+                player.runningAbilities.splice(i, 1)
+            } else {
+                //Handles Abilities
+                player.runningAbilities[i][0] -= 1;
+                if (player.runningAbilities[i][3] == type.ability) {moveAbility(player.runningAbilities[i][2][0])}
+                ++i;
+            }
+        }
+    }
+}
+
+setInterval(gameLoop, 1000 / tickRate);
+setInterval(sendClientPos, 1000 / toClientRate);
 

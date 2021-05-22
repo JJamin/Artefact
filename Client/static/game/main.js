@@ -8,7 +8,7 @@ var SOURCE = {
     sound:{}
 }
 var run = false 
-var camera, renderer, controls
+var camera, focus, renderer, controls
 var rtTexture, upscaleCamera, upscaleScene
 var G = {}
 const view = {}
@@ -43,7 +43,6 @@ function init() {
 
     const near = 0.1;
     const far = 1024;
-    let unit = 8;
     camera = new THREE.OrthographicCamera( view.width / -16, view.width / 16, view.height / 16, view.height / -16, 0, 256 );
     // camera = new THREE.PerspectiveCamera(fov=10, window.innerWidth / window.innerHeight, near, far);
     camera.up.set( 0, 0, 1 )
@@ -51,6 +50,9 @@ function init() {
     camera.position.y = -16; // Determines tilt angle
     camera.rotation.x = Math.PI * 0.12
     // camera.lookAt(0,0,0)
+
+    // The coordinate point at which the camera is centered around
+    focus = [0,0]
     
     // Pixelated upscale processing
     upscaleCamera = new THREE.OrthographicCamera( window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, -128, 128 );
@@ -98,62 +100,52 @@ function init() {
     G.scene.background = new THREE.Color( 0xE3A084 );
     G.textureLoader = new THREE.TextureLoader()
 
-    // Initialize objects in scene
-    
-    G.nodes = {}
-    // G.nodes.player = new THREE.Group()
-    // G.nodes.player = CreateMesh.player(capeColor=0x5C8BA8)
 
-    // { // Build player
-        
-    //     // Shadow
-    //     mat = new THREE.MeshBasicMaterial({color: 0xC77369})
-    //     let shadow = new THREE.Mesh(new THREE.CircleGeometry( 0.7, 12 ), mat);
-    //     // head.position.z = 0.62 + body.position.z
-    //     G.nodes.player.add( shadow )
+    // Initialize objects in scene
+    G.nodes = {}
+
+
+    // addChunk(G.scene, 31, 32)
+    // addChunk(G.scene, 31, 31)
+    // addChunk(G.scene, 32, 31)
+    // addChunk(G.scene, 32, 32)
+
+    for (chunkID of chunksInView()) {
+        addChunk(G.scene, chunkID[0], chunkID[1])
+    }
+
+    // { // Random rocks
+    //     for (var i = 0; i<32; ++i) {
+    //         const tex = G.textureLoader.load(`/static/img/rock${randInt(1)}.png`);  
+    //         tex.magFilter = THREE.NearestFilter;
+    //         tex.minFilter = THREE.NearestFilter;
+    //         const mat = new THREE.SpriteMaterial( { map: tex } );
+    //         const rock = new THREE.Sprite( mat );
+    //         // rock.rotation.x = 0.5
+    //         rock.position.x = Math.random() * 32*3 - 16*3
+    //         rock.position.y = Math.random() * 32*3 - 16*3
+    //         rock.position.z = 0.5
+    //         rock.scale.x = 2.0 // 1/SCALE*2.0// 0.5 //tex.image.width //* PREF.scale
+    //         // rock.scale.y = 1/SCALE*2.0//0.5 //tex.image.width //* PREF.scale
+    //         G.scene.add( rock )
+    //     }
+    // }
+
+
+    // { // Random grass
+    //     for (ix = -16; ix <= 16; ix += 1) {
+    //         for (iy = -16; iy <= 16; iy += 1) {
+                
+    //             if (simplex3(ix*0.1, iy*0.1, 0) > 0 ) {
+
+    //                 let sprite = addSprite(G.scene,`grass${randInt(2)}`, ix*2, iy*2)
+
+    //             }
+
+    //         }
+    //     }
 
     // }
-    // G.scene.add(G.nodes.player);
-
-    { // Random rocks
-        for (var i = 0; i<32; ++i) {
-            const tex = G.textureLoader.load(`/static/img/rock${randInt(1)}.png`);  
-            tex.magFilter = THREE.NearestFilter;
-            tex.minFilter = THREE.NearestFilter;
-            const mat = new THREE.SpriteMaterial( { map: tex } );
-            const rock = new THREE.Sprite( mat );
-            // rock.rotation.x = 0.5
-            rock.position.x = Math.random() * 32*3 - 16*3
-            rock.position.y = Math.random() * 32*3 - 16*3
-            rock.position.z = 0.5
-            rock.scale.x = 2.0 // 1/SCALE*2.0// 0.5 //tex.image.width //* PREF.scale
-            // rock.scale.y = 1/SCALE*2.0//0.5 //tex.image.width //* PREF.scale
-            G.scene.add( rock )
-        }
-    }
-
-    let chunk = addChunk(G.scene, 31, 31)
-
-
-    addSprite(G.scene,`tree0a`, 16, 16 + 0)
-    addSprite(G.scene,`tree0b`, 16, 16 + -3)
-    addSprite(G.scene,`tree0b`, 16, 16 + 3)
-
-
-    { // Random grass
-        for (ix = -16; ix <= 16; ix += 1) {
-            for (iy = -16; iy <= 16; iy += 1) {
-                
-                if (simplex3(ix*0.1, iy*0.1, 0) > 0 ) {
-
-                    let sprite = addSprite(G.scene,`grass${randInt(2)}`, ix*2, iy*2)
-
-                }
-
-            }
-        }
-
-    }
 
     var grid = new THREE.GridHelper(32, 32, colorCenterLine=0xDCDAC9, colorGrid=0xE7AD8B);
     G.grid = grid
@@ -190,9 +182,8 @@ function init() {
         }
     }
 
+    // Set the G.player variable
     findPlayer()
-
-    console.log(chunksInView())
 
 }
 var viewVector = new THREE.Vector3( 0, 1, 0 );
@@ -221,12 +212,13 @@ function frame() {
     viewVector.set(0,1,0)
     viewVector.applyAxisAngle( xAxis, controls.my*0.12 - 0.62 );
     viewVector.applyAxisAngle( zAxis, controls.mx*0.24 );
+    focus[0] = G.player.position.x
+    focus[1] = G.player.position.y
     let camPos = G.player.position.clone()
     viewVector.multiplyScalar(128.0)
     camPos.sub(viewVector)
     camera.position.set( camPos.x, camPos.y, camPos.z)
     camera.lookAt(G.player.position)
-
 
     const viewScaleX = 1/(VIEW_WIDTH * CHUNK_SIZE * UNIT)
     // pixelOffset.set( viewScaleX * (G.player.position.x + Math.trunc(G.player.position.x)) ,
@@ -273,20 +265,47 @@ var textureCache = {}
 function addChunk(container,x,y) {
     let chunk = new THREE.Group()
 
-    chunk.position = 
+    chunk.position.x = x * CHUNK_SIZE - (MAP_SIZE*CHUNK_SIZE/2)
+    chunk.position.y = y * CHUNK_SIZE - (MAP_SIZE*CHUNK_SIZE/2)
+
+    addSprite(chunk,`tree0a`, 16, 16 + 0)
+    addSprite(chunk,`tree0b`, 16, 16 + -3)
+    addSprite(chunk,`tree0b`, 16, 16 + 3)
 
     container.add(chunk)
     return chunk
 }
 // Returns a set of coordinate tuples (x,y) of the chunks that are potentiall visible
+var chunkBoundary = {
+    botLeft: [0,0],
+    topRight: [0,0],
+}
 function chunksInView() {
-    // 0,0 is the coordinate middle of the map
+    // 0,0 as a coordinate is the middle of the map
+    // 0,0 as a chunk id is the bottom left of the map
     let visible = new Set()
-    let topLeft = (-2,-2)
-    let botRight = (2,2)
-    for (let ix = topLeft[0]; ix <= botRight[0]; ix+= 1) {
-        for (let iy = topLeft[1]; ix <= botRight[1]; iy+= 1) {
-            visible.add( (ix,iy) )
+    
+    let botLeftValue = MAP_SIZE/2 - (VIEW_WIDTH - 1)
+    let botLeft = [botLeftValue,botLeftValue]
+    let topRightValue = MAP_SIZE/2 + (VIEW_WIDTH + 1)
+    let topRight = [topRightValue,topRightValue]
+
+    topRight[0] += focus[0] / CHUNK_SIZE
+    botLeft[0]  += focus[0] / CHUNK_SIZE
+    topRight[0] = parseInt(Math.round(topRight[0]))
+    botLeft[0] = parseInt(Math.round(botLeft[0]))
+
+    topRight[1] += focus[1] / CHUNK_SIZE
+    botLeft[1]  += focus[1] / CHUNK_SIZE
+    topRight[1] = parseInt(Math.round(topRight[1]))
+    botLeft[1] = parseInt(Math.round(botLeft[1]))
+
+    console.log(topRight)
+    console.log(botLeft)
+    
+    for (let ix = botLeft[0]; ix <= topRight[0]; ix += 1) {
+        for (let iy = botLeft[1]; iy <= topRight[1]; iy += 1) {
+            visible.add( [ix,iy] )
         }
     }
     return visible
@@ -317,21 +336,7 @@ function addSprite(container, img, x, y) {
 		console.error( 'ERROR loading image '+img );
     });  
     
-    
-    // tex.magFilter = THREE.NearestFilter;
-    // tex.minFilter = THREE.NearestFilter;
-    // const mat = new THREE.SpriteMaterial( { map: tex } );
-    // const node = new THREE.Sprite( mat );
-    // // rock.rotation.x = 0.5
-    // rock.position.x = Math.random() * 32 - 16
-    // rock.position.x += simplex3(rock.position.x*0.2, rock.position.y*0.2, 0) * 1.0
-    // rock.position.y = Math.random() * 32 - 16
-    // rock.position.y += simplex3(rock.position.x*0.2, 0, -rock.position.y*0.2) * 1.0
-    // rock.position.z = 0.5
-    // rock.scale.x = 2.0
-    // rock.scale.y = 2.0
-    // // rock.scale.y = 1/SCALE*2.0//0.5 //tex.image.width //* PREF.scale
-    // G.scene.add( rock )
+
 }
 function syncNodes() {
     // console.log("SYNC")
@@ -370,7 +375,6 @@ function renderScene() {
 }
 function setScale() {
     SCALE = window.innerWidth / (VIEW_WIDTH*CHUNK_SIZE*UNIT)
-    console.log("SCALE = "+SCALE)
     view.zoom = 1.0
     view.viewWidth = window.innerWidth//*window.devicePixelRatio
     view.viewHeight = window.innerHeight//*window.devicePixelRatio

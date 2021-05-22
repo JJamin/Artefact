@@ -10,6 +10,9 @@ var model = {
     enemies: {
         //enemyID:{username,capeColor}
     },
+    abilities: {
+        //abilityID:{abilityType:String}
+    },
     events: {
 
     }

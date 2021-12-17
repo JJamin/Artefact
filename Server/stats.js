@@ -109,7 +109,7 @@ function clearPlayer(params){
     params[0].velocity.y = 0
 }
 
-function createProjectile(world, player, abilities, dir, dist, time, label, activationFunc, clearFunc){
+function dwProjectile(world, player, abilities, dir, dist, time, label, activationFunc, clearFunc){
 
     var ability = {
         id: util.makeID(),

@@ -110,6 +110,7 @@ process.on('message', (msg) => {
     if (msg['type'] == 'update-server') {
         //msg = {direction: {string}}
         //TODO DEADLOCK
+        //
         players[msg['playerID']].direction = msg['message'];
     }
 

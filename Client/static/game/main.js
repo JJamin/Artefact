@@ -263,14 +263,51 @@ function randInt(upperBound) {
 }
 var textureCache = {}
 function addChunk(container,x,y) {
+    // let seed = x*11 + y*99991299899
     let chunk = new THREE.Group()
+    let propOffset = -100
+    let prop = ()=>{
+        propOffset += 100
+        return propOffset
+    }
 
+    console.log(prop())
+    console.log(prop())
+    
     chunk.position.x = x * CHUNK_SIZE - (MAP_SIZE*CHUNK_SIZE/2)
     chunk.position.y = y * CHUNK_SIZE - (MAP_SIZE*CHUNK_SIZE/2)
+    
+    // Grass
+    let count = simplex3(x,y,0)**2 * 128
+    console.log( "Spawn grass", count ) 
+    for (var i=0; i<count; ++i) {
+        let grass = addSprite(chunk,`grass${randInt(2)}`, simplex3(x, y, prop())*CHUNK_SIZE, simplex3(x, y, prop())*CHUNK_SIZE )
+        console.log(grass)
+    }
+    
+    // Rocks
+    count = simplex3(x,y,0)**2 * 32
+    console.log( "Spawn rock", count ) 
+    for (var i=0; i<count; ++i) {
+        let rock = addSprite(chunk,`rock${randInt(1)}`, simplex3(x, y, prop())*CHUNK_SIZE, simplex3(x, y, prop())*CHUNK_SIZE )
+        console.log(rock)
+        // rock.position.set(x,y,0)
+        // rock.position.x += simplex3(x, y, prop()) * 2.0
+        // rock.position.y += simplex3(x, y, prop()) * 2.0
+    }
 
-    addSprite(chunk,`tree0a`, 16, 16 + 0)
-    addSprite(chunk,`tree0b`, 16, 16 + -3)
-    addSprite(chunk,`tree0b`, 16, 16 + 3)
+    // Trees
+    count = simplex3(x,y,0)**2 * 4
+    console.log( "Spawn trees", count ) 
+    for (var i=0; i<count; ++i) {
+        let sx = simplex3(x,y,300+i)*CHUNK_SIZE
+        let sy = simplex3(x,y,400+i)*CHUNK_SIZE
+        addSprite(chunk,`tree0a`, sx, sy + 0)
+        addSprite(chunk,`tree0b`, sx, sy + -3)
+        addSprite(chunk,`tree0b`, sx, sy + 3)
+    }
+
+
 
     container.add(chunk)
     return chunk
@@ -329,8 +366,10 @@ function addSprite(container, img, x, y) {
 
         node.position.set(x,y,0)
         node.add(sprite)
+        node.sprite = sprite
 
         container.add(node)
+        return node
 
     },undefined,function ( err ) {
 		console.error( 'ERROR loading image '+img );

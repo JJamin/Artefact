@@ -28,7 +28,6 @@ const CreateMesh = {
 
         // Hat
         G.textureLoader.load('/static/img/hat.png',(tex)=>{
-            console.log(tex.image.width)
             tex.magFilter = THREE.NearestFilter;
             tex.minFilter = THREE.NearestFilter;
             mat = new THREE.SpriteMaterial( { map: tex } );

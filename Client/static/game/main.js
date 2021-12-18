@@ -1,3 +1,4 @@
+'use strict';
 var SCALE = 1
 const CHUNK_SIZE = 32
 const MAP_SIZE = 64
@@ -91,10 +92,10 @@ function init() {
 
     });
     let plane = new THREE.PlaneGeometry( window.innerWidth, window.innerHeight );
-                // plane to display rendered texture
-				quad = new THREE.Mesh( plane, materialScreen );
-				quad.position.z = - 100;
-				upscaleScene.add( quad );
+    // plane to display rendered texture
+    let quad = new THREE.Mesh( plane, materialScreen );
+    quad.position.z = - 100;
+    upscaleScene.add( quad );
 
     G.scene = new THREE.Scene();
     G.scene.background = new THREE.Color( 0xE3A084 );
@@ -105,55 +106,24 @@ function init() {
     G.nodes = {}
 
 
-    // addChunk(G.scene, 31, 32)
-    // addChunk(G.scene, 31, 31)
-    // addChunk(G.scene, 32, 31)
-    // addChunk(G.scene, 32, 32)
+    // console.log(chunksInView())
+    // addChunk(G.scene, 0, 0)
+    addChunk(G.scene, 31, 32)
+    addChunk(G.scene, 31, 31)
+    addChunk(G.scene, 32, 31)
+    addChunk(G.scene, 32, 32)
 
-    for (chunkID of chunksInView()) {
-        addChunk(G.scene, chunkID[0], chunkID[1])
+    for (let chunkID of chunksInView()) {
+        // addChunk(G.scene, chunkID[0], chunkID[1])
     }
 
-    // { // Random rocks
-    //     for (var i = 0; i<32; ++i) {
-    //         const tex = G.textureLoader.load(`/static/img/rock${randInt(1)}.png`);  
-    //         tex.magFilter = THREE.NearestFilter;
-    //         tex.minFilter = THREE.NearestFilter;
-    //         const mat = new THREE.SpriteMaterial( { map: tex } );
-    //         const rock = new THREE.Sprite( mat );
-    //         // rock.rotation.x = 0.5
-    //         rock.position.x = Math.random() * 32*3 - 16*3
-    //         rock.position.y = Math.random() * 32*3 - 16*3
-    //         rock.position.z = 0.5
-    //         rock.scale.x = 2.0 // 1/SCALE*2.0// 0.5 //tex.image.width //* PREF.scale
-    //         // rock.scale.y = 1/SCALE*2.0//0.5 //tex.image.width //* PREF.scale
-    //         G.scene.add( rock )
-    //     }
-    // }
-
-
-    // { // Random grass
-    //     for (ix = -16; ix <= 16; ix += 1) {
-    //         for (iy = -16; iy <= 16; iy += 1) {
-                
-    //             if (simplex3(ix*0.1, iy*0.1, 0) > 0 ) {
-
-    //                 let sprite = addSprite(G.scene,`grass${randInt(2)}`, ix*2, iy*2)
-
-    //             }
-
-    //         }
-    //     }
-
-    // }
-
-    var grid = new THREE.GridHelper(32, 32, colorCenterLine=0xDCDAC9, colorGrid=0xE7AD8B);
+    var grid = new THREE.GridHelper(32, 32, 0xDCDAC9, 0xE7AD8B);
     G.grid = grid
     grid.rotation.x = Math.PI/2
     grid.position.z = -0.01
     G.scene.add(grid);
 
-    var majorGrid = new THREE.GridHelper(64, 64, colorCenterLine=0xDCDAC9, colorGrid=0xE7AD8B);
+    var majorGrid = new THREE.GridHelper(64, 64, 0xDCDAC9, 0xE7AD8B);
     majorGrid.rotation.x = Math.PI/2
     majorGrid.position.z = -0.01
     majorGrid.scale.set(32,32,32)
@@ -196,7 +166,7 @@ function frame() {
     T = performance.now()
 
     // Update nodes
-    animateNodes()
+    interpolateNodes()
 
     G.grid.position.x = Math.round((G.player.position.x+CHUNK_SIZE*0.5)/CHUNK_SIZE)*CHUNK_SIZE - CHUNK_SIZE*0.5
     G.grid.position.y = Math.round((G.player.position.y+CHUNK_SIZE*0.5)/CHUNK_SIZE)*CHUNK_SIZE - CHUNK_SIZE*0.5
@@ -231,7 +201,7 @@ function frame() {
 
     // Notify server of ability cast attempts
     if (abilityCast.size > 0) {
-        for (ability of abilityCast) {
+        for (let ability of abilityCast) {
             switch (ability) {
                 case 1: socket.emit('update-server-ability1',{}); break;
                 case 2: socket.emit('update-server-ability2',{}); break;
@@ -248,10 +218,10 @@ function frame() {
     if (run) requestAnimationFrame(frame)
 
 }
-function animateNodes() {
+function interpolateNodes() {
     for (let nodeID in model.nodes) {
         let target = model.nodes[nodeID]
-        node = G.nodes[nodeID]
+        let node = G.nodes[nodeID]
         node.position.x += (target.x - G.nodes[nodeID].position.x ) * 0.8
         node.position.y += (target.y - G.nodes[nodeID].position.y ) * 0.8
         node.rotation.z = target.dir
@@ -263,49 +233,55 @@ function randInt(upperBound) {
 }
 var textureCache = {}
 function addChunk(container,x,y) {
+    console.log(`[Create chunk: ${x}, ${y}]`)
     // let seed = x*11 + y*99991299899
     let chunk = new THREE.Group()
-    let propOffset = -100
+    let propOffset = -200
     let prop = ()=>{
-        propOffset += 100
+        propOffset += 10
         return propOffset
     }
 
-    console.log(prop())
-    console.log(prop())
     
+    // Perimeter outline
+    let grid = new THREE.GridHelper(CHUNK_SIZE, 1, 0xff00ff, 0xff0000);
+    grid.rotation.x = Math.PI/2
+    grid.position.z = 0.01
+    chunk.add(grid);
+
+
     chunk.position.x = x * CHUNK_SIZE - (MAP_SIZE*CHUNK_SIZE/2)
     chunk.position.y = y * CHUNK_SIZE - (MAP_SIZE*CHUNK_SIZE/2)
     
-    // Grass
-    let count = simplex3(x,y,0)**2 * 128
-    console.log( "Spawn grass", count ) 
-    for (var i=0; i<count; ++i) {
-        let grass = addSprite(chunk,`grass${randInt(2)}`, simplex3(x, y, prop())*CHUNK_SIZE, simplex3(x, y, prop())*CHUNK_SIZE )
-        console.log(grass)
-    }
     
-    // Rocks
-    count = simplex3(x,y,0)**2 * 32
-    console.log( "Spawn rock", count ) 
-    for (var i=0; i<count; ++i) {
-        let rock = addSprite(chunk,`rock${randInt(1)}`, simplex3(x, y, prop())*CHUNK_SIZE, simplex3(x, y, prop())*CHUNK_SIZE )
-        console.log(rock)
-        // rock.position.set(x,y,0)
-        // rock.position.x += simplex3(x, y, prop()) * 2.0
-        // rock.position.y += simplex3(x, y, prop()) * 2.0
-    }
+    let grass = addSprite(chunk,`grass${randInt(2)}`, 0, 0 )
 
-    // Trees
-    count = simplex3(x,y,0)**2 * 4
-    console.log( "Spawn trees", count ) 
-    for (var i=0; i<count; ++i) {
-        let sx = simplex3(x,y,300+i)*CHUNK_SIZE
-        let sy = simplex3(x,y,400+i)*CHUNK_SIZE
-        addSprite(chunk,`tree0a`, sx, sy + 0)
-        addSprite(chunk,`tree0b`, sx, sy + -3)
-        addSprite(chunk,`tree0b`, sx, sy + 3)
-    }
+    // // Grass
+    // let count = simplex3(x,y,0)**2 * 128
+    // console.log(`Spawn ${count} grass`)
+    // for (var i=0; i<count; ++i) {
+    //     let grass = addSprite(chunk,`grass${randInt(2)}`, simplex3(x, y, prop())*CHUNK_SIZE*0.5, simplex3(x, y, prop())*CHUNK_SIZE*0.5 )
+    // }
+    
+    // // Rocks
+    // count = simplex3(x,y,0)**2 * 32
+    // for (var i=0; i<count; ++i) {
+    //     let rock = addSprite(chunk,`rock${randInt(1)}`, simplex3(x, y, prop())*CHUNK_SIZE*0.5, simplex3(x, y, prop())*CHUNK_SIZE*0.5 )
+    //     console.log(rock)
+    //     // rock.position.set(x,y,0)
+    //     rock.position.x += simplex3(x, y, prop()) * 2.0
+    //     rock.position.y += simplex3(x, y, prop()) * 2.0
+    // }
+
+    // // Trees
+    // count = simplex3(x,y,0)**2 * 4
+    // for (var i=0; i<count; ++i) {
+    //     let sx = simplex3(x,y,300+i)*CHUNK_SIZE
+    //     let sy = simplex3(x,y,400+i)*CHUNK_SIZE
+    //     addSprite(chunk,`tree0a`, sx, sy + 0)
+    //     addSprite(chunk,`tree0b`, sx, sy + -3)
+    //     addSprite(chunk,`tree0b`, sx, sy + 3)
+    // }
 
 
 
@@ -336,9 +312,6 @@ function chunksInView() {
     botLeft[1]  += focus[1] / CHUNK_SIZE
     topRight[1] = parseInt(Math.round(topRight[1]))
     botLeft[1] = parseInt(Math.round(botLeft[1]))
-
-    console.log(topRight)
-    console.log(botLeft)
     
     for (let ix = botLeft[0]; ix <= topRight[0]; ix += 1) {
         for (let iy = botLeft[1]; iy <= topRight[1]; iy += 1) {
@@ -348,8 +321,8 @@ function chunksInView() {
     return visible
 }
 function addSprite(container, img, x, y) {
+    let node = new THREE.Group()
     G.textureLoader.load(`/static/img/${img}.png`,( texture )=>{
-        let node = new THREE.Group()
 
         texture.magFilter = THREE.NearestFilter;
         texture.minFilter = THREE.NearestFilter;
@@ -369,24 +342,25 @@ function addSprite(container, img, x, y) {
         node.sprite = sprite
 
         container.add(node)
-        return node
-
+        
     },undefined,function ( err ) {
-		console.error( 'ERROR loading image '+img );
+        console.error( 'ERROR loading image '+img );
     });  
+    return node
     
 
 }
 function syncNodes() {
-    // console.log("SYNC")
     let stale = new Set(Object.keys(G.nodes))
     for (let nodeID in model.nodes) {
         stale.delete(nodeID)
-        node = model.nodes[nodeID]
+        let node = model.nodes[nodeID]
         if (nodeID in G.nodes) {
             // Node already exists
+
         } else {
             // Create new node
+            console.log(`create node ${node.type}`)
             G.nodes[nodeID] = CreateMesh.player()
             G.nodes[nodeID].position.x = node.x
             G.nodes[nodeID].position.y = node.y
@@ -396,7 +370,7 @@ function syncNodes() {
             }
         }
     }
-
+    // Remove stale nodes
     for (let nodeID of stale) {
         G.scene.remove(G.nodes[nodeID])
         delete G.nodes[nodeID]
@@ -419,6 +393,8 @@ function setScale() {
     view.viewHeight = window.innerHeight//*window.devicePixelRatio
     view.width = Math.ceil(window.innerWidth / SCALE)
     view.height = Math.ceil(window.innerHeight / SCALE)
+    view.canvas.width = Math.ceil(window.innerWidth / SCALE)
+    view.canvas.height = Math.ceil(window.innerHeight / SCALE)
 }
 function setCamera() {
     camera.aspect =  view.width / view.height
@@ -426,13 +402,14 @@ function setCamera() {
     renderer.setSize( view.viewWidth, view.viewHeight )
 }
 function layout () {
-    width = window.innerWidth
-    height = window.innerHeight
+    let width = window.innerWidth
+    let height = window.innerHeight
+    renderer.setSize( width, height )
     camera.aspect =  width / height
     camera.updateProjectionMatrix();
-    renderer.setSize( width, height )
 }
 function resize() {
+    setScale()
     layout()
 }
 // Helpers
@@ -478,8 +455,9 @@ function mouseMove(e) {
     controls.my = ((e.clientY/window.innerHeight) * -1.0) + 0.5
 }
 
-// NOISE FUNCTION
-
+//
+// PROCEDURAL NOISE FUNCTION
+//
 function Grad(x, y, z) {
     this.x = x; this.y = y; this.z = z;
 }
@@ -515,7 +493,7 @@ var gradP = new Array(512);
 
 // This isn't a very good seeding function, but it works ok. It supports 2^16
 // different seed values. Write something better if you need more seeds.
-seed = function(seed) {
+var seed = function(seed) {
     if(seed > 0 && seed < 1) {
         // Scale the seed out
         seed *= 65536;

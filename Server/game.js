@@ -119,21 +119,20 @@ process.on('message', (msg) => {
         players[msg['playerID']].direction = msg['message'];
     }
 
-    if (msg['type'] == 'update-server-ability1') {
-        player = players[msg['playerID']]
-        s.st["skill"]["f"]["run"](player, world, abilityBuffer)
-    }
+    // if (msg['type'] == 'update-server-ability1') {
+    //     console.log(players)
+    // }
 
-    if (msg['type'] == 'update-server-ability2') {
-        console.log(abilityBuffer)
-    }
+    // if (msg['type'] == 'update-server-ability2') {
+    //     console.log(abilityBuffer)
+    // }
 
-    if (msg['type'] == 'update-server-ability3') {
-        player = players[msg['playerID']]
-        if (player.abilityCD[2] <= 0){
-            s.st["skill"]["g"]["run"](player, world, abilityBuffer, 2)
-        }
-    }
+    // if (msg['type'] == 'update-server-ability3') {
+    //     player = players[msg['playerID']]
+    //     if (player.abilityCD[2] <= 0){
+    //         s.st["skill"]["g"]["run"](player, world, abilityBuffer, 2)
+    //     }
+    // }
 });
 
 //Update the clients
@@ -159,10 +158,6 @@ function sendClientUpdates(){
                     {
                         nodes[id] = createNode(world[y][x][id][1], type.enemy)
                     }
-                    else if (world[y][x][id][0] == type.ability)
-                    {
-                        nodes[id] = createNode(world[y][x][id][1], type.ability)
-                    }
                 }
             }
         }
@@ -187,7 +182,7 @@ function tickPlayer(player){
     movePlayer(player)
 
     //Ticks players abilities
-    tickAbilities(player)
+    // tickAbidwlities(player)
 
 }
 

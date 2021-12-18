@@ -127,12 +127,12 @@ process.on('message', (msg) => {
     //     console.log(abilityBuffer)
     // }
 
-    // if (msg['type'] == 'update-server-ability3') {
-    //     player = players[msg['playerID']]
-    //     if (player.abilityCD[2] <= 0){
-    //         s.st["skill"]["g"]["run"](player, world, abilityBuffer, 2)
-    //     }
-    // }
+    if (msg['type'] == 'update-server-ability3') {
+        player = players[msg['playerID']]
+        if (player.abilityCD[2] <= 0){
+            s.st["skill"]["g"]["run"](player, world, abilityBuffer, 2)
+        }
+    }
 });
 
 //Update the clients
@@ -182,7 +182,7 @@ function tickPlayer(player){
     movePlayer(player)
 
     //Ticks players abilities
-    // tickAbidwlities(player)
+    tickAbilities(player)
 
 }
 
@@ -268,18 +268,17 @@ function newPlayerVelocity(direction, velocity){
 function tickAbilities(player){
 
     //resets ability cooldowns
-    var i = 0
-    while (i < player.abilityCD.length){
+    for (var i = 0; i < player.abilityCD.length; ++i){
         if (player.abilityCD[i] > 0){
             player.abilityCD[i] -= 1
-        }
+        } 
     }
 
     //Runs active abilities
     if (player.runningAbilities.length != 0){
         for (var abilityID in player.runningAbilities){
             var ability = player.runningAbilities[abilityID]
-            st["skill"][ability.type]["loop"](player, world, ability);
+            s.st["skill"][ability.type]["loop"](player, world, ability);
         }
     }
 }

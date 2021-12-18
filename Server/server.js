@@ -90,6 +90,7 @@ io.on('connection', (socket) => {
     //--Test-- send anything to the server and print it out
     socket.on('test', function(test) {
         console.log(test);
+        console.log(lobbies)
     });
 
     // --Disconnection--
@@ -118,10 +119,6 @@ function startLobby(){
             if (msg['playerID'] in sockets){
                 sockets[msg['playerID']].emit('update-client-playerInfo', msg['message'])
             }
-        }
-
-        if (msg['type'] == 'print') {
-            console.log(msg['message'])
         }
     });
 

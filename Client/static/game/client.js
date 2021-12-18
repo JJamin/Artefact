@@ -5,16 +5,13 @@ var model = {
         // nodeID:{type,x,y,dir}
     },
     player: {
-        //playerID:{username, capeColor, abilitiesUnlocked, activeAbilities, abilityCooldown}
+        //nodeID:{username, capeColor, abilitiesUnlocked, activeAbilities, abilityCooldown}
     },
     enemies: {
-        //enemyID:{username,capeColor}
-    },
-    abilities: {
-        //abilityID:{abilityType:String}
+        //nodeID:{username,capeColor}
     },
     events: {
-
+        //EventObjectID:{nodeID, type}
     }
 }
 
@@ -56,6 +53,8 @@ function socketConnections(socket) {
 
     socket.on('update-client-playerInfo', function (updatedPlayer) {
         for (var player in updatedPlayer){
+            console.log(model.player)
+            console.log(player)
             if (!(player in model.player)){
                 model.player[player] = updatedPlayer[player]
             }

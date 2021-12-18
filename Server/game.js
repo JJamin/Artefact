@@ -10,12 +10,14 @@ var maxScreenHeight = 160;
 var worldChunk = 64;
 
 var tickRate = 60;
-var toClientRate = 40;
+var toClientRate = 30;
 
 
 var players = {}; //[PlayerID] -> Player
-var abilities = {}; //[AbilityID] -> ability
 var world = [];
+var abilityBuffer = {}; //AbilityID: Ability 
+
+//Create the world
 for(var i=0; i<worldChunk; ++i) {
     world.push([]);
     for(var j=0; j<worldChunk; ++j) {
@@ -38,6 +40,7 @@ function sendInfo(p, t, m){
             message : m});
 }
 
+//Create new player model
 function createNewPlayer(playerID, playerUsername){
     var player = {
         id: playerID,
@@ -46,20 +49,21 @@ function createNewPlayer(playerID, playerUsername){
         movementSpeed: 0.35,
         direction: {x:0, y:0, dir: 0},
         abilitiesUnlocked: [],
-        activeAbilities: ["","",""],
+        abilities: ["","",""],
         abilityCD: [0,0,0],
         capeColor: util.randomColor(),
         velocity: {x: 0, y: 0},
         health: 100,
         currentChunk: {x:0, y:0},
-        runningAbilities: [],
-        hidden: false,
-        invulnerable: false,
-        moveable: true
+        runningAbilities: {}, //abilityid: ability
+        hidden: 0,
+        invulnerable: 0,
+        moveable: 1
     };
     return player
 }
 
+//Create a node
 function createNode(node, type){
     var newNode = {
         id: node.id,
@@ -72,6 +76,7 @@ function createNode(node, type){
     return newNode
 }
 
+//Remove a player from the server
 function killPlayer(playerID){
     //add drops and what not TODO
     //TODO DEADLOCK
@@ -79,7 +84,7 @@ function killPlayer(playerID){
     delete players[playerID];
 }
 
-//Get Recieve messages sent from the Main Server
+//Listening and reacting to recieved messages sent from the Main Server
 process.on('message', (msg) => {
 
     if (msg['type'] == 'addPlayer') {
@@ -95,7 +100,7 @@ process.on('message', (msg) => {
         newPlayerInfo[msg['message'][0]] = {username: msg['message'][1], 
                                                      capeColor: players[msg['message'][0]].capeColor,
                                                      abilitiesUnlocked: [],
-                                                     activeAbilities: ["","",""],
+                                                     abilities: ["","",""],
                                                      abilityCD: [0,0,0]
                                             }
         process.send(sendInfo(msg['message'][0], 'update-client-playerInfo', newPlayerInfo));
@@ -116,21 +121,25 @@ process.on('message', (msg) => {
 
     if (msg['type'] == 'update-server-ability1') {
         player = players[msg['playerID']]
-        s.st["skill"]["f"]["run"](player, world, abilities)
+        s.st["skill"]["f"]["run"](player, world, abilityBuffer)
     }
 
     if (msg['type'] == 'update-server-ability2') {
-        console.log(abilities)
+        console.log(abilityBuffer)
     }
 
     if (msg['type'] == 'update-server-ability3') {
         player = players[msg['playerID']]
-        s.st["skill"]["g"]["run"](player, world, abilities)
+        if (player.abilityCD[2] <= 0){
+            s.st["skill"]["g"]["run"](player, world, abilityBuffer, 2)
+        }
     }
 });
 
-//What to send to the clients
-function sendClientPos(){
+//Update the clients
+function sendClientUpdates(){
+
+    //What to send to the clients updates in nodes
     for (var playerID in players){
         var nodes = {};
         var player = players[playerID];
@@ -159,6 +168,8 @@ function sendClientPos(){
         }
         process.send(sendInfo(player.id, 'update-client-nodes', nodes));
     }
+
+    //What to send to the clients for events
 }
 
 //Game Functions dw
@@ -213,26 +224,6 @@ function movePlayer(player){
     }
 }
 
-function moveAbility(ability){
-    //Move ability
-
-    newPosx = ability.position.x + ability.velocity.x
-    newPosy = ability.position.y + ability.velocity.y
-    if (newPosx < worldChunk*16 && newPosx > -worldChunk*16){
-        ability.position.x = newPosx
-    }
-    if (newPosy < worldChunk*16 && newPosy > -worldChunk*16){
-        ability.position.y = newPosy
-    }
-
-    var newChunk = util.getChunk(ability.position, worldChunk)
-    if (ability.currentChunk != newChunk){
-        delete world[ability.currentChunk.y][ability.currentChunk.x][ability.id]
-        world[newChunk.y][newChunk.x][ability.id] = [type.ability, ability]
-        ability.currentChunk = newChunk
-    }
-}
-
 function newPlayerVelocity(direction, velocity){
 
     if (direction.x == 0 && velocity.x != 0){
@@ -280,26 +271,24 @@ function newPlayerVelocity(direction, velocity){
 }
 
 function tickAbilities(player){
-    //Checks if running abilities are done
+
+    //resets ability cooldowns
+    var i = 0
+    while (i < player.abilityCD.length){
+        if (player.abilityCD[i] > 0){
+            player.abilityCD[i] -= 1
+        }
+    }
+
+    //Runs active abilities
     if (player.runningAbilities.length != 0){
-
-        var i = 0
-        while (i < player.runningAbilities.length){
-
-            if (player.runningAbilities[i][0] <= 0){
-                //remove the ability
-                player.runningAbilities[i][1](player.runningAbilities[i][2])
-                player.runningAbilities.splice(i, 1)
-            } else {
-                //Handles Abilities
-                player.runningAbilities[i][0] -= 1;
-                if (player.runningAbilities[i][3] == type.ability) {moveAbility(player.runningAbilities[i][2][0])}
-                ++i;
-            }
+        for (var abilityID in player.runningAbilities){
+            var ability = player.runningAbilities[abilityID]
+            st["skill"][ability.type]["loop"](player, world, ability);
         }
     }
 }
 
 setInterval(gameLoop, 1000 / tickRate);
-setInterval(sendClientPos, 1000 / toClientRate);
+setInterval(sendClientUpdates, 1000 / toClientRate);
 

@@ -60,7 +60,7 @@ exports.st = {
                 cooldown: 1
             },
             "run": function (player, world, abilities){
-                createProjectile(world, player, abilities, player.direction, 30, 0.5, "g", dashPlayer, removeAbility)
+                // createProjectile(world, player, abilities, player.direction, 30, 0.5, "g", dashPlayer, removeAbility)
             }
         },
         "g":{

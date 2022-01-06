@@ -47,7 +47,7 @@ io.on('connection', (socket) => {
         username: "NULL",
         lobbyCode: "----"
     };
-    
+    ``
     //Player Joins the game. Player Setup
     socket.on('joinGame', function(username){
         //If player id already in database, remove

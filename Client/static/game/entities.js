@@ -1,2 +1,0 @@
-
-var entities = 0

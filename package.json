@@ -1,0 +1,19 @@
+{
+  "name": "ascendant",
+  "version": "0.0.1",
+  "description": "",
+  "main": "cd Server && node server.js",
+  "scripts": {
+    "start": "cd Server && node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JJamin/Artefact.git"
+  },
+  "author": "JK Play",
+  "license": "Copyright",
+  "bugs": {
+    "url": "https://github.com/JJamin/Artefact/issues"
+  },
+  "homepage": "https://github.com/JJamin/Artefact#readme"
+}

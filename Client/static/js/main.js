@@ -194,7 +194,7 @@ function init() {
     }
 
     // Grass
-    for (let i=0; i<1_000; ++i) {
+    for (let i=0; i<20_000; ++i) {
         let n = {
             id: `_grass${i}`,
             format: Format.mesh,
@@ -206,8 +206,9 @@ function init() {
         }
         n.p[0] = (Math.random()-0.5) * MAP_SIZE * CHUNK_SIZE
         n.p[1] = (Math.random()-0.5) * MAP_SIZE * CHUNK_SIZE
-        n.s[2] = .25 + Math.random()*2
-        // n.r[2] = Math.random()*360
+        // n.s[2] = 1.5 + Math.random()*1.5
+        n.s[2] = -1.5 - Math.random()*1.5
+        n.r[2] = Math.random()*360
         addNode(n)
     }
 
@@ -220,7 +221,7 @@ function start() {
 }
 function stop() { G.run = false }
 function frame() {
-    T = performance.now()
+    T = performance.now() * 0.001
 
     // Cursor direction
     dir = -Math.atan(controls.mx/controls.my)
@@ -268,6 +269,7 @@ function renderScene() {
     // Draw meshes
     G.prog.mesh.prepareDraw()
     gl.enable(gl.DEPTH_TEST)
+    G.prog.mesh.setUniform['u_T']( T )
     G.prog.mesh.setUniform['u_View']( G.camera.viewMatrix )
     // G.prog.mesh.setUniform['u_View']( G.cam.matrix )
     for (let nodeID in G.renderData.mesh) {

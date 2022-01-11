@@ -346,7 +346,7 @@ class FrameBuffer {
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, level);
         }
 
-        gl.clearColor(0.78, 0.45, 0.41, 1.0);
+        gl.clearColor(0.63, 0.30, 0.33, 1.0);
         // gl.clearDepth(1.0);
         // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         // gl.depthMask(true);

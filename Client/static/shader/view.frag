@@ -17,6 +17,8 @@ void main() {
         color.rgb = vec3(0.);
     }
 
+    color.rgb = pow(color.rgb, vec3(.92, 1.12, 1.05));
+
     fragColor = color;
 
 }

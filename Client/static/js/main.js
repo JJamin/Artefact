@@ -17,7 +17,7 @@ var FILE = {shader:{},texture:{},mesh:{},sound:{}}
 const REQUIRED = {
     shader: ['terrain.vert','terrain.frag','view.vert','view.frag','mesh.vert','mesh.frag'],
     // img: ['map','terrain'] // .png
-    mesh: ['player','grass0','tree0']
+    mesh: ['floor','player','grass0','tree0']
 } 
 
 function load() {
@@ -84,7 +84,7 @@ function init() {
 
     // Create render Programs
     G.prog = {}
-    G.prog.terrain = new FlatProgram(
+    G.prog.terrain = new MeshProgram(
         FILE.shader['terrain.vert'],
         FILE.shader['terrain.frag'],
         G.target.scene
@@ -122,8 +122,8 @@ function init() {
             let lookMat = mat4.create()
             // mat4.ortho(projMat, G.target.scene.w*-0.5, G.target.scene.w*0.5, G.target.scene.h*-0.5, G.target.scene.h*0.5, 0.01, 128)
             // mat4.ortho(projMat, -1, 1, -1, 1, 0, 128)
-            vec3.add(G.camera.p, vec3.fromValues(controls.mx * 8, -32, 32 - controls.my * 8), G.player.p)
-            mat4.ortho(projMat, -G.target.scene.w/2/UNIT, G.target.scene.w/2/UNIT, -G.target.scene.h/2/UNIT, G.target.scene.h/2/UNIT, 0, 128)
+            vec3.add(G.camera.p, vec3.fromValues(controls.mx * 16, -64, 64 - controls.my * 16), G.player.p)
+            mat4.ortho(projMat, -G.target.scene.w/2/UNIT, G.target.scene.w/2/UNIT, -G.target.scene.h/2/UNIT, G.target.scene.h/2/UNIT, 0, 256)
             mat4.lookAt(lookMat, G.camera.p, G.player.pv, G.up)
             mat4.mul(G.camera.viewMatrix, projMat, lookMat)
         }
@@ -148,7 +148,6 @@ function init() {
     // Set the G.player variable
     console.log("Waiting for info...")
     checkIfModelLoaded()
-
 
     // Debug visuals
     let testNode = {
@@ -175,8 +174,27 @@ function init() {
     tree.p[0] = 8
     addNode(tree)
 
+    // Trees
+    for (let i=0; i<500; ++i) {
+        let n = {
+            id: `_tree${i}`,
+            format: Format.mesh,
+            mesh: "tree0",
+            p: vec3.create(),
+            r: vec3.create(),
+            s: vec3.fromValues(1,1,1),
+            update: ()=>{}
+        }
+        n.r[2] = (Math.random()-.5) * 180
+        n.p[0] = (Math.random()-0.5) * MAP_SIZE * CHUNK_SIZE
+        n.p[1] = (Math.random()-0.5) * MAP_SIZE * CHUNK_SIZE
+        n.s[2] = .75 + Math.random()*.5
+        // n.r[2] = Math.random()*360
+        addNode(n)
+    }
+
     // Grass
-    for (let i=0; i<10_000; ++i) {
+    for (let i=0; i<1_000; ++i) {
         let n = {
             id: `_grass${i}`,
             format: Format.mesh,
@@ -240,16 +258,15 @@ function frame() {
 function renderScene() {
 
     // Render floor
-    // G.prog.terrain.prepareDraw()
-    // // gl.clear(gl.DEPTH_BUFFER_BIT);
-    // // G.prog.ter
-    // G.prog.terrain.setUniform['camera']( [G.player.p[0], G.player.p[1]] )
-    // gl.bindTexture(gl.TEXTURE_2D, FILE.texture['map']);
-    // G.prog.terrain.draw()
+    G.prog.terrain.prepareDraw()
+    G.prog.terrain.clear()
+    G.prog.terrain.setUniform['u_View']( G.camera.viewMatrix )
+    let floor = FILE.mesh['floor']
+    G.prog.terrain.draw(floor)
+
 
     // Draw meshes
     G.prog.mesh.prepareDraw()
-    G.prog.mesh.clear()
     gl.enable(gl.DEPTH_TEST)
     G.prog.mesh.setUniform['u_View']( G.camera.viewMatrix )
     // G.prog.mesh.setUniform['u_View']( G.cam.matrix )

@@ -114,16 +114,28 @@ class FlatProgram {
             let setFuncName = "uniform"
             if (! ["sampler2D"].includes(i[1])) {
                 switch (i[1]) {
+                    case "int": setFuncName += "1i"; break;
                     case "float": setFuncName += "1f"; break;
                     case "vec2": setFuncName += "2fv"; break;
                     case "vec3": setFuncName += "3fv"; break;
                     case "vec4": setFuncName += "4fv"; break;
-                    case "int": setFuncName += "1i"; break;
+                    case "mat2": setFuncName += "Matrix2fv"; break;
+                    case "mat3": setFuncName += "Matrix3fv"; break;
+                    case "mat4": setFuncName += "Matrix4fv"; break;
                     default: alert("Unsupported uniform type"); break;
                 }
-                this.setUniform[i[2]] = (value)=>{
-                    gl.useProgram(this.program)
-                    gl[setFuncName](location, value)
+                if (i[1].substr(0,3) == 'mat') {
+                    // Matrix uniform
+                    this.setUniform[i[2]] = (value)=>{
+                        gl.useProgram(this.program)
+                        gl[setFuncName](location, false, value)
+                    }
+                } else {
+                    // Regular uniform
+                    this.setUniform[i[2]] = (value)=>{
+                        gl.useProgram(this.program)
+                        gl[setFuncName](location, value)
+                    }
                 }
             }
         }
@@ -131,20 +143,17 @@ class FlatProgram {
         // Check errors
         gl.useProgram(this.program)
         if (gl.getError() != 0) {
+            // Append error message to HTML body
             const message = 'Error creating program'
             document.body.innerHTML += `
                 <div id="error">${message}</div>
                 <style>
                     #error {
-                        position: absolute;
-                        padding: 16px;
-                        top: 0; left: 0; right: 0;
-                        font-size: 16px;
-                        background: red;
-                        color: white;
+                        position: absolute; padding: 16px; top: 0; left: 0; right: 0; font-size: 16px; background: red; color: white;
                     }
                 </style>
             `
+            alert("Error")
         }
 
         gl.viewport(0, 0, this.target.w, this.target.h)
@@ -251,15 +260,11 @@ class MeshProgram {
                 <div id="error">${message}</div>
                 <style>
                     #error {
-                        position: absolute;
-                        padding: 16px;
-                        top: 0; left: 0; right: 0;
-                        font-size: 16px;
-                        background: red;
-                        color: white;
+                        position: absolute; padding: 16px; top: 0; left: 0; right: 0; font-size: 16px; background: red; color: white;
                     }
                 </style>
             `
+            alert("Error")
         }
 
         gl.viewport(0, 0, this.target.w, this.target.h)

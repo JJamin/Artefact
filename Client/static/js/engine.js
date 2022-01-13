@@ -353,6 +353,67 @@ class FrameBuffer {
         // gl.depthFunc(gl.LESS)
     }
 }
+class DepthFrameBuffer {
+    constructor(w, h) {
+        this.w = w
+        this.h = h
+
+        // Create color texture
+        // gl.activeTexture(gl.TEXTURE0)
+        this.texture = gl.createTexture()
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        const level = 0;
+        const border = 0;
+        {
+            const internalFormat = gl.RGBA;
+            const format = gl.RGBA;
+            const type = gl.UNSIGNED_BYTE;
+            const data = null;
+            gl.texImage2D(gl.TEXTURE_2D, level, internalFormat, this.w, this.h, border, format, type, data);
+            // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+            // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+        }
+
+        this.buffer = gl.createFramebuffer();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.buffer);        
+        const colorAttachmentPoint = gl.COLOR_ATTACHMENT0;
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, colorAttachmentPoint, gl.TEXTURE_2D, this.texture, level);
+
+        // Create depth texture
+        const depthTexture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, depthTexture);
+
+        {
+            // define size and format of level 0
+            const internalFormat = gl.DEPTH_COMPONENT24;
+            const format = gl.DEPTH_COMPONENT;
+            const type = gl.UNSIGNED_INT;
+            const data = null;
+            gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+                            this.w, this.h,  border,
+                            format, type, data);
+            
+            // set the filtering so we don't need mips
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            
+            // attach the depth texture to the framebuffer
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, level);
+        }
+
+        gl.clearColor(0.63, 0.30, 0.33, 1.0);
+        // gl.clearDepth(1.0);
+        // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        // gl.depthMask(true);
+        // gl.depthFunc(gl.LESS)
+    }
+}
 class Mesh {
     constructor(data){
         // Expects data={verts:[vertlist],faces:[facelist]}

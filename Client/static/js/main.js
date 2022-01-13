@@ -17,7 +17,7 @@ var FILE = {shader:{},texture:{},mesh:{},sound:{}}
 const REQUIRED = {
     shader: ['terrain.vert','terrain.frag','view.vert','view.frag','mesh.vert','mesh.frag'],
     // img: ['map','terrain'] // .png
-    mesh: ['floor','player','grass0','tree0']
+    mesh: ['floor','player','rock0','grass0','tallgrass0','tree0']
 } 
 
 function load() {
@@ -194,7 +194,7 @@ function init() {
     }
 
     // Grass
-    for (let i=0; i<20_000; ++i) {
+    for (let i=0; i<10_000; ++i) {
         let n = {
             id: `_grass${i}`,
             format: Format.mesh,
@@ -207,7 +207,46 @@ function init() {
         n.p[0] = (Math.random()-0.5) * MAP_SIZE * CHUNK_SIZE
         n.p[1] = (Math.random()-0.5) * MAP_SIZE * CHUNK_SIZE
         // n.s[2] = 1.5 + Math.random()*1.5
-        n.s[2] = -1.5 - Math.random()*1.5
+        n.s[2] = .5 + Math.random()*1.5
+        n.r[2] = Math.random()*360
+        addNode(n)
+    }
+
+    // Tall Grass
+    for (let i=0; i<10_000; ++i) {
+        let n = {
+            id: `_tallgrass${i}`,
+            format: Format.mesh,
+            mesh: "tallgrass0",
+            p: vec3.create(),
+            r: vec3.create(),
+            s: vec3.fromValues(1,1,1),
+            update: ()=>{}
+        }
+        n.p[0] = (Math.random()-0.5) * MAP_SIZE * CHUNK_SIZE
+        n.p[1] = (Math.random()-0.5) * MAP_SIZE * CHUNK_SIZE
+        n.s[0] = 1 + Math.random()*.5
+        n.s[1] = 1 + Math.random()*.5
+        n.r[2] = Math.random()*360
+        addNode(n)
+    }
+
+    // Rocks
+    for (let i=0; i<2_000; ++i) {
+        let n = {
+            id: `_rock${i}`,
+            format: Format.mesh,
+            mesh: "rock0",
+            p: vec3.create(),
+            r: vec3.create(),
+            s: vec3.fromValues(1,1,1),
+            update: ()=>{}
+        }
+        n.p[0] = (Math.random()-0.5) * MAP_SIZE * CHUNK_SIZE
+        n.p[1] = (Math.random()-0.5) * MAP_SIZE * CHUNK_SIZE
+        n.s[0] = .5 + Math.random()*2.
+        n.s[1] = .5 + Math.random()*2.
+        n.s[2] = .5 + Math.random()*3.
         n.r[2] = Math.random()*360
         addNode(n)
     }
